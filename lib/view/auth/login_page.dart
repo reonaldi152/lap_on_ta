@@ -171,11 +171,19 @@ class _LoginPageState extends State<LoginPage> {
                         ))
                       : TextButton(
                           onPressed: () {
-                            Session().setUserLogin(value: true);
-                            Navigator.of(context).pushAndRemoveUntil(
-                                MaterialPageRoute(
-                                    builder: (context) => const BasePage()),
-                                    (Route<dynamic> route) => false);
+                            // Session().setUserLogin(value: true);
+                            // Navigator.of(context).pushAndRemoveUntil(
+                            //     MaterialPageRoute(
+                            //         builder: (context) => const BasePage()),
+                            //         (Route<dynamic> route) => false);
+
+                            if (isLoading == false &&
+                                _formKey.currentState!.validate()) {
+                              setState(() {
+                                isLoading = true;
+                              });
+                              login();
+                            }
                           },
                           child: Text(
                             "Masuk Sekarang",

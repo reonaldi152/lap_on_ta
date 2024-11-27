@@ -9,4 +9,13 @@ class Endpoint {
   static const String requestCodePasswordUrl = 'api/password/email';
   static const String resetPasswordUrl = 'api/password/reset';
 
+  static const String venueUrl = 'api/venues';
+  static const String venueCategoryUrl = 'api/venues/category';
+
+  static const String categoryUrl = 'api/categories';
+
+  static const String bannerUrl = 'api/banners';
+
+  static const String bookingUrl = 'api/bookings';
+
 }

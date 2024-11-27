@@ -320,18 +320,18 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   child: TextButton(
                       onPressed: () {
-                        // if (isLoading == false && _formKey.currentState!.validate()){
-                        //   setState(() {
-                        //     isLoading = true;
-                        //   });
-                        //   register();
-                        // }
+                        if (isLoading == false && _formKey.currentState!.validate()){
+                          setState(() {
+                            isLoading = true;
+                          });
+                          register();
+                        }
 
-                        Session().setUserLogin(value: true);
-                        Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                                builder: (context) => const BasePage()),
-                                (Route<dynamic> route) => false);
+                        // Session().setUserLogin(value: true);
+                        // Navigator.of(context).pushAndRemoveUntil(
+                        //     MaterialPageRoute(
+                        //         builder: (context) => const BasePage()),
+                        //         (Route<dynamic> route) => false);
                       },
                       child: isLoading ? const Center(child: CircularProgressIndicator(color: AppColor.white)) :Text(
                         "Daftar Sekarang",
@@ -378,29 +378,29 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // register() {
-  //   AuthViewmodel()
-  //       .register(email: emailController.text,gender: valueGender, name: namaController.text, confirmPassword: confirmPasswordController.text, password: passwordController.text, phone: noTelpController.text)
-  //       .then(
-  //         (response) async {
-  //       if (response.code == 200){
-  //         setState(() {
-  //           isLoading = false;
-  //         });
-  //         if (!mounted) return;
-  //
-  //         Navigator.of(context).pushAndRemoveUntil(
-  //             MaterialPageRoute(builder: (_) => const BasePage()),
-  //                 (Route<dynamic> route) => false);
-  //
-  //
-  //       } else {
-  //         setState(() {
-  //           isLoading = false;
-  //         });
-  //         showToast(context: context,msg: response.message.toString());
-  //       }
-  //     },
-  //   );
-  // }
+  register() {
+    AuthViewmodel()
+        .register(email: emailController.text, name: namaController.text, confirmPassword: confirmPasswordController.text, password: passwordController.text, phone: noTelpController.text)
+        .then(
+          (response) async {
+        if (response.code == 200){
+          setState(() {
+            isLoading = false;
+          });
+          if (!mounted) return;
+
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const BasePage()),
+                  (Route<dynamic> route) => false);
+
+
+        } else {
+          setState(() {
+            isLoading = false;
+          });
+          showToast(context: context,msg: response.message.toString());
+        }
+      },
+    );
+  }
 }

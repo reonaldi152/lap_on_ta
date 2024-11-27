@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_lapon/config/app_color.dart';
+import 'package:flutter_lapon/model/venue/venue.dart';
 import 'package:flutter_lapon/view/booking/booking_page.dart';
+import 'package:flutter_lapon/viewmodel/venue_viewmodel.dart';
 
 class VenueDetailPage extends StatefulWidget {
-  const VenueDetailPage({super.key});
+  const VenueDetailPage({super.key, this.venueId});
+  final dynamic venueId;
 
   @override
   State<VenueDetailPage> createState() => _VenueDetailPageState();
@@ -11,18 +14,43 @@ class VenueDetailPage extends StatefulWidget {
 
 class _VenueDetailPageState extends State<VenueDetailPage> {
   @override
+  void initState() {
+    getDetailVenue();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.white,
+      appBar: AppBar(
+        title: Text(
+          "Check Out",
+          style: fontTextStyle.copyWith(
+              color: AppColor.colorPrimaryGreen, fontSize: 18, fontWeight: FontWeight.w700),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: AppColor.colorPrimaryGreen,
+            size: 16,
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             Stack(
               children: [
-                Image.asset(
-                  "assets/venue1.png",
-                  fit: BoxFit.fitWidth,
-                  width: double.infinity,
+                Padding(
+                  padding: const EdgeInsets.only(top: 36),
+                  child: Image.network(
+                    "https://laponid.com/storage/${_venue?.image}",
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                  ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 26),
@@ -39,7 +67,7 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
                       children: [
                         const SizedBox(height: 26),
                         Text(
-                          "Taruna Mandiri",
+                          _venue?.name ?? "",
                           style: fontTextStyle.copyWith(
                             color: AppColor.colorPrimaryGreen,
                             fontSize: 20,
@@ -51,15 +79,17 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
                           children: [
                             const Icon(Icons.location_pin),
                             const SizedBox(width: 4),
-                            Text(
-                              "Serpong, Tangerang Selatan",
-                              style: fontTextStyle.copyWith(fontSize: 13),
+                            Expanded(
+                              child: Text(
+                                _venue?.address ?? "",
+                                style: fontTextStyle.copyWith(fontSize: 13),
+                              ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 32),
                         Text(
-                          "Looking for the perfect place to relax and unwind? This stunning Balinese villa is the ultimate tropical getaway. Located on a quiet street just minutes from the beach, this beautiful home offers everything you need for a luxurious and comfortable stay.",
+                          _venue?.description ?? "",
                           style: fontTextStyle.copyWith(fontSize: 12),
                         ),
                         const SizedBox(height: 36),
@@ -115,31 +145,31 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
                           ],
                         ),
                         const SizedBox(height: 24),
-                        Text(
-                          "Fasilitas",
-                          style: fontTextStyle.copyWith(
-                            color: AppColor.colorPrimaryGreen,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Cafe",
-                          style: fontTextStyle.copyWith(),
-                        ),
-                        Text(
-                          "Parkir",
-                          style: fontTextStyle.copyWith(),
-                        ),
-                        Text(
-                          "Kamar Mandi",
-                          style: fontTextStyle.copyWith(),
-                        ),
-                        Text(
-                          "Smoking Area",
-                          style: fontTextStyle.copyWith(),
-                        ),
+                        // Text(
+                        //   "Fasilitas",
+                        //   style: fontTextStyle.copyWith(
+                        //     color: AppColor.colorPrimaryGreen,
+                        //     fontSize: 16,
+                        //     fontWeight: FontWeight.w700,
+                        //   ),
+                        // ),
+                        // const SizedBox(height: 8),
+                        // Text(
+                        //   "Cafe",
+                        //   style: fontTextStyle.copyWith(),
+                        // ),
+                        // Text(
+                        //   "Parkir",
+                        //   style: fontTextStyle.copyWith(),
+                        // ),
+                        // Text(
+                        //   "Kamar Mandi",
+                        //   style: fontTextStyle.copyWith(),
+                        // ),
+                        // Text(
+                        //   "Smoking Area",
+                        //   style: fontTextStyle.copyWith(),
+                        // ),
                         const SizedBox(height: 24),
                         Text(
                           "Lokasi",
@@ -151,7 +181,7 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          "Jl. Kebon Jeruk XV Jl. Mangga Besar IV H No.20, RT.14/RW.8, Maphar, Kec. Taman Sari, Kota Jakarta Barat, Daerah Khusus Ibukota Jakarta 11160(hreff)",
+                          _venue?.address ?? "",
                           style: fontTextStyle.copyWith(fontSize: 13),
                         ),
                         const SizedBox(height: 30),
@@ -185,7 +215,7 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
                                     ),
                                   ),
                                   Text(
-                                    "Rp 150.000",
+                                    "${_venue?.price}",
                                     style: fontTextStyle.copyWith(
                                         color: const Color(0xFF121212),
                                         fontWeight: FontWeight.w700),
@@ -194,7 +224,7 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
                               ),
                               InkWell(
                                 onTap: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => BookingPage(),));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => BookingPage(venueId: widget.venueId),));
                                 },
                                 child: Container(
                                   padding: EdgeInsets.symmetric(vertical: 11, horizontal: 16),
@@ -225,5 +255,16 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
         ),
       ),
     );
+  }
+
+  Venue? _venue;
+  getDetailVenue() {
+    VenueViewmodel().detailVenue(venueid: widget.venueId).then((value) {
+      if (value.code == 200) {
+        setState(() {
+          _venue = Venue.fromJson(value.data);
+        });
+      }
+    });
   }
 }

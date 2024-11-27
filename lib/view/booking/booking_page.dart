@@ -1,16 +1,32 @@
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lapon/config/app_color.dart';
+import 'package:flutter_lapon/model/schedule/data_schedule.dart';
+import 'package:flutter_lapon/model/schedule/schedule.dart';
 import 'package:flutter_lapon/view/checkout/checkout_page.dart';
+import 'package:flutter_lapon/viewmodel/venue_viewmodel.dart';
 
 class BookingPage extends StatefulWidget {
-  const BookingPage({super.key});
+  const BookingPage({super.key, this.venueId});
+  final dynamic venueId;
 
   @override
   State<BookingPage> createState() => _BookingPageState();
 }
 
 class _BookingPageState extends State<BookingPage> {
+  DateTime _dateTime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day); // Inisialisasi dengan tanggal saat ini tanpa waktu
+  ScheduleModel? _scheduleModel;
+  DataSchedule? selectedSchedule;
+  double totalPrice = 0.0;
+  bool isSelected = false;
+
+  @override
+  void initState() {
+    getScheduleVenue();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,7 +48,7 @@ class _BookingPageState extends State<BookingPage> {
           ),
         ),
       ),
-      body: Container(
+      body: _scheduleModel == null ? Center(child: CircularProgressIndicator(),) : Container(
         height: MediaQuery.of(context).size.height,
         margin: EdgeInsets.only(top: 12),
         decoration: const BoxDecoration(
@@ -46,7 +62,10 @@ class _BookingPageState extends State<BookingPage> {
               EasyDateTimeLine(
                 initialDate: DateTime.now(),
                 onDateChange: (selectedDate) {
-                  //`selectedDate` the new date selected.
+                  setState(() {
+                    _dateTime = selectedDate;
+                    getScheduleVenue();
+                  });
                 },
                 activeColor: AppColor.colorPrimaryGreen,
                 dayProps: const EasyDayProps(
@@ -58,7 +77,7 @@ class _BookingPageState extends State<BookingPage> {
               ExpansionTile(
                 title: Container(
                   padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+                  const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
                   child: Row(
                     children: [
                       ClipRRect(
@@ -73,14 +92,14 @@ class _BookingPageState extends State<BookingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Lapangan A",
+                            _scheduleModel?.venue?.name ?? "",
                             style: fontTextStyle.copyWith(
                                 color: AppColor.black,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 16),
                           ),
                           Text(
-                            "3 Jadwal Tersedia",
+                            "${_scheduleModel?.schedules?.length} Jadwal Tersedia",
                             style: fontTextStyle.copyWith(
                                 color: AppColor.colorPrimaryGreen,
                                 fontWeight: FontWeight.w600),
@@ -91,168 +110,90 @@ class _BookingPageState extends State<BookingPage> {
                   ),
                 ),
                 children: List.generate(
-                  4,
-                  (index) {
-                    return Container(
-                      margin: EdgeInsets.symmetric(horizontal: 30, vertical: 8),
-                      padding:
-                          EdgeInsets.symmetric(vertical: 8, horizontal: 25),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: AppColor.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xff94A8BE).withOpacity(0.3),
-                            spreadRadius: 0.1,
-                            blurRadius: 4,
-                            offset: const Offset(
-                                0.5, 0), // changes position of shadow
-                          ),
-                        ],
-                        // border: Border.all(color: AppColor.colorPrimaryGreen, width: 3)
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "60 Menit",
-                                style: fontTextStyle.copyWith(
-                                  fontSize: 10,
-                                  color: const Color(0xFF6F737A),
-                                ),
-                              ),
-                              Text(
-                                "22:00 - 23:00",
-                                style: fontTextStyle.copyWith(
-                                  color: AppColor.black,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                "Rp. 70.000",
-                                style: fontTextStyle.copyWith(
-                                  color: AppColor.black,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.circle_outlined,
-                                color: AppColor.black,
-                              ),
-                              // Icon(Icons.check_circle, color: AppColor.colorPrimaryGreen,)
-                            ],
-                          )
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 16),
-              ExpansionTile(
-                title: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
-                  child: Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8.0),
-                        child: Image.network(
-                          "https://picsum.photos/300/300",
-                          width: 70,
+                  _scheduleModel!.schedules!.length,
+                      (index) {
+                    DataSchedule data = _scheduleModel!.schedules![index];
+                    setState(() {
+                      isSelected = selectedSchedule == data;
+
+                    });
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (isSelected) {
+                            selectedSchedule = null;
+                            totalPrice = 0.0;
+                          } else {
+                            selectedSchedule = data;
+                            totalPrice = double.parse(_scheduleModel!.venue!.price!);
+                          }
+                        });
+                      },
+                      child: Container(
+                        margin: EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 8),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 25),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: isSelected
+                              ? AppColor.colorPrimaryGreen
+                              : AppColor.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xff94A8BE).withOpacity(0.3),
+                              spreadRadius: 0.1,
+                              blurRadius: 4,
+                              offset: const Offset(
+                                  0.5, 0),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Lapangan B",
-                            style: fontTextStyle.copyWith(
-                                color: AppColor.black,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16),
-                          ),
-                          Text(
-                            "3 Jadwal Tersedia",
-                            style: fontTextStyle.copyWith(
-                                color: AppColor.colorPrimaryGreen,
-                                fontWeight: FontWeight.w600),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-                children: List.generate(
-                  4,
-                  (index) {
-                    return Container(
-                      margin: EdgeInsets.symmetric(horizontal: 30, vertical: 8),
-                      padding:
-                          EdgeInsets.symmetric(vertical: 8, horizontal: 25),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: AppColor.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xff94A8BE).withOpacity(0.3),
-                            spreadRadius: 0.1,
-                            blurRadius: 4,
-                            offset: const Offset(
-                                0.5, 0), // changes position of shadow
-                          ),
-                        ],
-                        // border: Border.all(color: AppColor.colorPrimaryGreen, width: 3)
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "60 Menit",
-                                style: fontTextStyle.copyWith(
-                                  fontSize: 10,
-                                  color: const Color(0xFF6F737A),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "60 Menit",
+                                  style: fontTextStyle.copyWith(
+                                    fontSize: 10,
+                                    color: const Color(0xFF6F737A),
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                "22:00 - 23:00",
-                                style: fontTextStyle.copyWith(
-                                  color: AppColor.black,
-                                  fontWeight: FontWeight.w700,
+                                Text(
+                                  "${data.start_time} - ${data.end_time}",
+                                  style: fontTextStyle.copyWith(
+                                    color: AppColor.black,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                "Rp. 70.000",
-                                style: fontTextStyle.copyWith(
-                                  color: AppColor.black,
-                                  fontWeight: FontWeight.w700,
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  "${_scheduleModel?.venue?.price}",
+                                  style: fontTextStyle.copyWith(
+                                    color: AppColor.black,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.circle_outlined,
-                                color: AppColor.black,
-                              ),
-                              // Icon(Icons.check_circle, color: AppColor.colorPrimaryGreen,)
-                            ],
-                          )
-                        ],
+                                const SizedBox(width: 4),
+                                Icon(
+                                  isSelected
+                                      ? Icons.check_circle
+                                      : Icons.circle_outlined,
+                                  color: isSelected
+                                      ? AppColor.white
+                                      : AppColor.black,
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -278,11 +219,10 @@ class _BookingPageState extends State<BookingPage> {
                   spreadRadius: 0.4,
                   blurRadius: 6,
                   offset: const Offset(
-                      0.5, 0), // changes position of shadow
+                      0.5, 0),
                 )
               ],
-              borderRadius: BorderRadius.circular(10)
-          ),
+              borderRadius: BorderRadius.circular(10)),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -290,14 +230,14 @@ class _BookingPageState extends State<BookingPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Total : 3 Sesi terpilih",
+                    "Total : ${selectedSchedule != null ? 1 : 0} Sesi terpilih",
                     style: fontTextStyle.copyWith(
                       color: const Color(0xFF121212),
                       fontSize: 12,
                     ),
                   ),
                   Text(
-                    "Rp 150.000",
+                    "Rp $totalPrice",
                     style: fontTextStyle.copyWith(
                         color: const Color(0xFF121212),
                         fontWeight: FontWeight.w700),
@@ -305,8 +245,27 @@ class _BookingPageState extends State<BookingPage> {
                 ],
               ),
               InkWell(
-                onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => CheckoutPage(),));
+                onTap: () {
+                  if (selectedSchedule != null) {
+                    String formattedStartTime = selectedSchedule!.start_time.substring(0, 5);
+                    String formattedEndTime = selectedSchedule!.end_time.substring(0, 5);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CheckoutPage(
+                          venueId: widget.venueId,
+                          bookingDate: "${_dateTime.year.toString().padLeft(4, '0')}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}",
+                          startTime: formattedStartTime,
+                          endTime: formattedEndTime,
+                          totalPayment: totalPrice,
+                          categoryId: _scheduleModel?.venue?.categoryId,
+                        ),
+                      ),
+                    );
+                  } else {
+                    // Tampilkan alert atau pesan bahwa pengguna harus memilih jadwal terlebih dahulu
+                  }
+
                 },
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 11, horizontal: 16),
@@ -329,4 +288,23 @@ class _BookingPageState extends State<BookingPage> {
       ),
     );
   }
+
+  void getScheduleVenue() {
+    String formattedDate = "${_dateTime.year.toString().padLeft(4, '0')}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}";
+    VenueViewmodel()
+        .scheduleVenue(venueID: widget.venueId, date: formattedDate)
+        .then(
+          (value) {
+        if (value.code == 200) {
+          setState(() {
+            _scheduleModel = ScheduleModel.fromJson(value.data);
+          });
+        }
+      },
+    );
+  }
+
+
 }
+
+

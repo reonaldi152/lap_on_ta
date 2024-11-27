@@ -1,15 +1,36 @@
+
+
 import 'package:flutter/material.dart';
+import 'package:flutter_lapon/viewmodel/booking_viewmodel.dart';
+import 'package:flutter_lapon/widget/custom_toast.dart';
 
 import '../../config/app_color.dart';
+import '../../model/venue/venue.dart';
+import '../../viewmodel/venue_viewmodel.dart';
 
 class CheckoutPage extends StatefulWidget {
-  const CheckoutPage({super.key});
+  const CheckoutPage({super.key, this.venueId, this.categoryId, this.bookingDate, this.startTime, this.endTime, this.totalPayment});
+  final dynamic venueId;
+  final dynamic categoryId;
+  final dynamic bookingDate;
+  final dynamic startTime;
+  final dynamic endTime;
+  final dynamic totalPayment;
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
+  @override
+  void initState() {
+    getBooking();
+    getDetailVenue();
+    super.initState();
+  }
+
+  dynamic code;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +52,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
         ),
       ),
-      body: Container(
+      body: code != 201 ? Center(child: CircularProgressIndicator(),) : Container(
         height: MediaQuery.of(context).size.height,
         margin: EdgeInsets.only(top: 12),
         decoration: const BoxDecoration(
@@ -49,14 +70,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
                     child: Image.network(
-                      "https://picsum.photos/400/200",
+                      "https://laponid.com/storage/${_venue?.image}",
                       width: double.infinity,
                       fit: BoxFit.cover,
                     ),
                   ),
                 ),
                 Text(
-                  "Stadium Elektro",
+                  _venue?.name ?? "",
                   style: fontTextStyle.copyWith(
                       color: AppColor.colorPrimaryGreen,
                       fontSize: 20,
@@ -68,7 +89,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     const Icon(Icons.location_pin),
                     const SizedBox(width: 4),
                     Text(
-                      "Serpong, Tangerang Selatan",
+                      _venue?.address ?? "",
                       style: fontTextStyle.copyWith(fontSize: 13),
                     ),
                   ],
@@ -86,7 +107,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Lapangan A",
+                      _venue?.name ?? "",
                       style: fontTextStyle.copyWith(
                           color: AppColor.black,
                           fontWeight: FontWeight.w700,
@@ -96,7 +117,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ],
                 ),
                 Text(
-                  "Kamis, 9 May 2024",
+                  dateBooking,
                   style: fontTextStyle.copyWith(
                     color: Color(0xFF6F737A),
                     fontWeight: FontWeight.w500,
@@ -117,7 +138,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             Padding(
                               padding: const EdgeInsets.only(left: 16.0),
                               child: Text(
-                                '22:00 - 23:00',
+                                "${startTime} - ${endTime}",
                                 style: fontTextStyle.copyWith(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -152,14 +173,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                 ),
                 SizedBox(height: 16),
-                _buildRow('Biaya Sewa', 'Rp 210.000'),
+                _buildRow('Biaya Sewa', total),
                 SizedBox(height: 8),
-                _buildRow('Admin', 'Rp 5.000', isLink: true),
+                _buildRow('Admin', '', isLink: true),
                 SizedBox(height: 8),
-                _buildRow('PPN (10%)', 'Rp 14.000'),
+                _buildRow('PPN (10%)', ''),
                 Divider(thickness: 1, color: Colors.grey[300]),
                 SizedBox(height: 8),
-                _buildRow('Total', 'Rp 279.000', isBold: true),
+                _buildRow('Total', total, isBold: true),
                 Divider(thickness: 1, color: Colors.grey[300]),
                 SizedBox(height: 8),
 
@@ -196,14 +217,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Total : 3 Sesi terpilih",
+                    "Total : 1 Sesi terpilih",
                     style: fontTextStyle.copyWith(
                       color: const Color(0xFF121212),
                       fontSize: 12,
                     ),
                   ),
                   Text(
-                    "Rp 150.000",
+                    total,
                     style: fontTextStyle.copyWith(
                         color: const Color(0xFF121212),
                         fontWeight: FontWeight.w700),
@@ -271,6 +292,35 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ),
       ],
     );
+  }
+
+  String dateBooking = "", total = "", startTime = "", endTime = "";
+
+  getBooking(){
+    BookingViewmodel().booking(categoryId: widget.categoryId, bookingDate: widget.bookingDate, endTime: widget.endTime, startTime: widget.startTime, taxPercentage: "1000", totalPayment: widget.totalPayment, venueId: widget.venueId).then((value) {
+      if (value.code == 201){
+        setState(() {
+          code = value.code;
+          dateBooking = value.data['booking_date'];
+          total = value.data['total_payment'];
+          startTime = value.data['start_time'];
+          endTime = value.data['end_time'];
+        });
+      } else {
+        showToast(context: context, msg: value.message);
+      }
+    },);
+  }
+
+  Venue? _venue;
+  getDetailVenue() {
+    VenueViewmodel().detailVenue(venueid: widget.venueId).then((value) {
+      if (value.code == 200) {
+        setState(() {
+          _venue = Venue.fromJson(value.data);
+        });
+      }
+    });
   }
 }
 

@@ -1,14 +1,15 @@
-// import 'package:firebase_performance/firebase_performance.dart';
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'network/dio_exception.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'network/interceptors/authorization_interceptor.dart';
 import 'network/interceptors/logger_interceptor.dart';
-// import 'package:firebase_performance_dio/firebase_performance_dio.dart';
 
 final baseUrl = dotenv.env['BASEURL_STAGING']!;
 // final baseUrl = dotenv.env['BASEURL_PRODUCTION']!;
+// final baseUrl = "https://laravel4.isysedge.com/cashout/public/api/";
 
 class Network {
   static Future<dynamic> postApi(String url, dynamic formData) async {
@@ -16,33 +17,98 @@ class Network {
       var dio = Dio(
         BaseOptions(
           baseUrl: baseUrl,
-          connectTimeout: 500000,
-          receiveTimeout: 300000,
+          connectTimeout: const Duration(milliseconds: 500000),
+          receiveTimeout: const Duration(milliseconds: 300000),
+          responseType: ResponseType.json,
+          maxRedirects: 0,
+        ),
+      )..interceptors.addAll([
+        AuthorizationInterceptor(),
+        LoggerInterceptor(),
+      ]);
+      Response rest = await dio.post(url, data: formData, options: Options(followRedirects: false, validateStatus: (status) => true,));
+      debugPrint("$url response:${rest.data ?? ""}");
+      dio.close();
+      return rest.data;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response!.data);
+        print(e.response!.headers);
+        print(e.response!.requestOptions);
+
+        return jsonDecode(e.response.toString());
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.requestOptions);
+        print(e.message);
+      }
+    }
+  }
+
+  static Future<dynamic> postApiNotBody(String url) async {
+    try {
+      var dio = Dio(
+        BaseOptions(
+          baseUrl: baseUrl,
+          connectTimeout: const Duration(milliseconds: 500000),
+          receiveTimeout: const Duration(milliseconds: 300000),
+          responseType: ResponseType.json,
+          maxRedirects: 0,
+        ),
+      )..interceptors.addAll([
+        AuthorizationInterceptor(),
+        LoggerInterceptor(),
+      ]);
+      Response rest = await dio.post(url);
+      debugPrint("$url response:${rest.data ?? ""}");
+      dio.close();
+      return rest.data;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response!.data);
+        print(e.response!.headers);
+        print(e.response!.requestOptions);
+
+        return jsonDecode(e.response.toString());
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.requestOptions);
+        print(e.message);
+      }
+    }
+  }
+
+  static Future<dynamic> postApiWithContentType(String url, dynamic formData) async {
+    try {
+      var dio = Dio(
+        BaseOptions(
+          baseUrl: baseUrl,
+          connectTimeout: const Duration(milliseconds: 500000),
+          receiveTimeout: const Duration(milliseconds: 300000),
           responseType: ResponseType.json,
           maxRedirects: 0,
           contentType: 'application/x-www-form-urlencoded',
         ),
       )..interceptors.addAll([
-          AuthorizationInterceptor(),
-          LoggerInterceptor(),
-          // _interceptorWrapperPerf(),
-          // DioFirebasePerformanceInterceptor(),
-        ]);
+        AuthorizationInterceptor(),
+        LoggerInterceptor(),
+      ]);
       Response rest = await dio.post(url, data: formData);
       debugPrint("$url response:${rest.data ?? ""}");
       dio.close();
       return rest.data;
-    } on DioError catch (err) {
-      Map<String, dynamic> error = {};
-      error["code"] = err.response?.statusCode;
-      error["message"] = err.response?.statusMessage;
-      // final errorMessage = DioException.fromDioError(err).toString();
-      // debugPrint(errorMessage.toString());
-      // throw errorMessage;
-      return error;
-    } catch (e) {
-      debugPrint(e.toString());
-      throw e.toString();
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response!.data);
+        print(e.response!.headers);
+        print(e.response!.requestOptions);
+
+        return jsonDecode(e.response.toString());
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.requestOptions);
+        print(e.message);
+      }
     }
   }
 
@@ -52,33 +118,33 @@ class Network {
       var dio = Dio(
         BaseOptions(
           baseUrl: baseUrl,
-          connectTimeout: 500000,
-          receiveTimeout: 300000,
+          connectTimeout: const Duration(milliseconds: 500000),
+          receiveTimeout: const Duration(milliseconds: 300000),
           responseType: ResponseType.json,
           maxRedirects: 0,
         ),
       )..interceptors.addAll([
-          // AuthorizationInterceptor(),
-          LoggerInterceptor(),
-          // _interceptorWrapperPerf(),
-          // DioFirebasePerformanceInterceptor(),
-        ]);
+        // AuthorizationInterceptor(),
+        LoggerInterceptor(),
+      ]);
       Response restValue =
-          await dio.post(url, data: body, options: Options(headers: header));
+      await dio.post(url, data: body, options: Options(headers: header));
       debugPrint("$url response:${restValue.data ?? ""}");
       dio.close();
       header.clear();
       return restValue.data;
-    } on DioError catch (err) {
-      Map<String, dynamic> error = {};
-      error["code"] = err.response?.statusCode;
-      error["message"] = err.response?.statusMessage;
-      // final errorMessage = DioException.fromDioError(err).toString();
-      // throw errorMessage;
-      return error;
-    } catch (e) {
-      debugPrint(e.toString());
-      throw e.toString();
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response!.data);
+        print(e.response!.headers);
+        print(e.response!.requestOptions);
+
+        return jsonDecode(e.response.toString());
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.requestOptions);
+        print(e.message);
+      }
     }
   }
 
@@ -88,63 +154,33 @@ class Network {
       var dio = Dio(
         BaseOptions(
           baseUrl: baseUrl,
-          connectTimeout: 500000,
-          receiveTimeout: 300000,
+          connectTimeout: const Duration(milliseconds: 500000),
+          receiveTimeout: const Duration(milliseconds: 300000),
           responseType: ResponseType.json,
           maxRedirects: 0,
         ),
       )..interceptors.addAll([
-          // AuthorizationInterceptor(),
-          LoggerInterceptor(),
-          // _interceptorWrapperPerf(),
-          // DioFirebasePerformanceInterceptor(),
-        ]);
+        // AuthorizationInterceptor(),
+        LoggerInterceptor(),
+      ]);
       Response restValue =
-          await dio.post(url, options: Options(headers: header));
+      await dio.post(url, options: Options(headers: header, followRedirects: false));
       debugPrint("$url response:${restValue.data ?? ""}");
       dio.close();
       header.clear();
       return restValue.data;
-    } on DioError catch (err) {
-      final errorMessage = DioException.fromDioError(err).toString();
-      throw errorMessage;
-    } catch (e) {
-      debugPrint(e.toString());
-      throw e.toString();
-    }
-  }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response!.data);
+        print(e.response!.headers);
+        print(e.response!.requestOptions);
 
-  static Future<dynamic> postApiWithContentType(
-      String url, dynamic formData) async {
-    try {
-      var dio = Dio(
-        BaseOptions(
-          baseUrl: baseUrl,
-          connectTimeout: 500000,
-          receiveTimeout: 300000,
-          responseType: ResponseType.json,
-          maxRedirects: 0,
-          contentType: 'application/x-www-form-urlencoded',
-        ),
-      )..interceptors.addAll([
-          AuthorizationInterceptor(),
-          LoggerInterceptor(),
-        ]);
-      Response rest = await dio.post(url, data: formData);
-      debugPrint("$url response:${rest.data ?? ""}");
-      dio.close();
-      return rest.data;
-    } on DioError catch (err) {
-      Map<String, dynamic> error = {};
-      error["code"] = err.response?.statusCode;
-      error["message"] = err.response?.statusMessage;
-      // final errorMessage = DioException.fromDioError(err).toString();
-      // debugPrint(errorMessage.toString());
-      // throw errorMessage;
-      return error;
-    } catch (e) {
-      debugPrint(e.toString());
-      throw e.toString();
+        return jsonDecode(e.response.toString());
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.requestOptions);
+        print(e.message);
+      }
     }
   }
 
@@ -155,17 +191,16 @@ class Network {
       var dio = Dio(
         BaseOptions(
             baseUrl: baseUrl,
-            connectTimeout: 500000,
-            receiveTimeout: 300000,
+            connectTimeout: const Duration(milliseconds: 500000),
+            receiveTimeout: const Duration(milliseconds: 300000),
             responseType: ResponseType.json,
             maxRedirects: 0,
+            headers: header,
             contentType: 'application/x-www-form-urlencoded'),
       )..interceptors.addAll([
-          // AuthorizationInterceptor(),
-          LoggerInterceptor(),
-          // _interceptorWrapperPerf(),
-          // DioFirebasePerformanceInterceptor(),
-        ]);
+        // AuthorizationInterceptor(),
+        LoggerInterceptor(),
+      ]);
       Response restValue = await dio.post(url,
           data: body,
           options: Options(contentType: Headers.formUrlEncodedContentType));
@@ -173,20 +208,18 @@ class Network {
       dio.close();
       header?.clear();
       return restValue.data;
-    } on DioError catch (err) {
-      // debugPrint(err.message);
-      // debugPrint(err.response.toString());
-      // debugPrint(err.type.toString());
-      // debugPrint(err.requestOptions.toString());
-      // debugPrint(err.error);
-      Map<String, dynamic> error = {};
-      error["code"] = err.response?.statusCode;
-      error["message"] = err.response?.statusMessage;
-      // return err.response?.data;
-      return error;
-    } catch (e) {
-      debugPrint(e.toString());
-      throw e.toString();
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response!.data);
+        print(e.response!.headers);
+        print(e.response!.requestOptions);
+
+        return jsonDecode(e.response.toString());
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.requestOptions);
+        print(e.message);
+      }
     }
   }
 
@@ -196,139 +229,68 @@ class Network {
       var dio = Dio(
         BaseOptions(
           baseUrl: baseUrl,
-          connectTimeout: 500000,
-          receiveTimeout: 300000,
+          connectTimeout: const Duration(milliseconds: 500000),
+          receiveTimeout: const Duration(milliseconds: 300000),
           responseType: ResponseType.json,
           maxRedirects: 0,
           contentType: 'application/x-www-form-urlencoded',
-          // headers: header,
+          headers: header,
         ),
       )..interceptors.addAll([
-          // AuthorizationInterceptor(),
-          LoggerInterceptor(),
-          // _interceptorWrapperPerf(),
-          // DioFirebasePerformanceInterceptor(),
-        ]);
+        // AuthorizationInterceptor(),
+        LoggerInterceptor(),
+      ]);
       Response restValue =
-          await dio.post(url, data: body, options: Options(headers: header));
+      await dio.post(url, data: body, options: Options(headers: header));
       debugPrint("$url response:${restValue.data ?? ""}");
       dio.close();
       header.clear();
       return restValue.data;
-    } on DioError catch (err) {
-      // debugPrint(err.message);
-      // debugPrint(err.response.toString());
-      // debugPrint(err.type.toString());
-      // debugPrint(err.requestOptions.toString());
-      // debugPrint(err.error);
-      // return err.response?.data;
-      Map<String, dynamic> error = {};
-      error["code"] = err.response?.statusCode;
-      error["message"] = err.response?.statusMessage;
-      return error;
-    } catch (e) {
-      debugPrint(e.toString());
-      throw e.toString();
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response!.data);
+        print(e.response!.headers);
+        print(e.response!.requestOptions);
+
+        return jsonDecode(e.response.toString());
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.requestOptions);
+        print(e.message);
+      }
     }
   }
-
-  // static Future<dynamic> putApiWithHeadersAndContentType(String url, Map<String, dynamic> body, {String? contentType, Map<String, dynamic>? header}) async {
-  //   try {
-  //     var dio = Dio(
-  //       BaseOptions(
-  //           baseUrl: dotenv.env['BASEURL']!,
-  //           connectTimeout: 500000,
-  //           receiveTimeout: 300000,
-  //           responseType: ResponseType.json,
-  //           maxRedirects: 0,
-  //           contentType: 'application/x-www-form-urlencoded'
-  //       ),
-  //     )..interceptors.addAll([
-  //       AuthorizationInterceptor(),
-  //       LoggerInterceptor(),
-  //     ]);
-  //     Response restValue = await dio.put(url, data: body);
-  //     debugPrint("$url response:${restValue.data??""}");
-  //     dio.close();
-  //     header?.clear();
-  //     return restValue.data;
-  //   } on DioError catch (err) {
-  //     debugPrint(err.message);
-  //     debugPrint(err.response.toString());
-  //     debugPrint(err.type.toString());
-  //     debugPrint(err.requestOptions.toString());
-  //     debugPrint(err.error);
-  //     return err.response?.data;
-  //   } catch (e) {
-  //     debugPrint(e.toString());
-  //     throw e.toString();
-  //   }
-  // }
 
   static Future<dynamic> getApi(String url, {String? baseurl}) async {
     try {
       var dio = Dio(
         BaseOptions(
-          baseUrl: baseUrl,
-          connectTimeout: 500000,
-          receiveTimeout: 300000,
+          baseUrl: baseurl ?? baseUrl,
+          connectTimeout: const Duration(milliseconds: 500000),
+          receiveTimeout: const Duration(milliseconds: 300000),
           responseType: ResponseType.json,
           maxRedirects: 0,
         ),
       )..interceptors.addAll([
-          AuthorizationInterceptor(),
-          LoggerInterceptor(),
-          // _interceptorWrapperPerf(),
-          // DioFirebasePerformanceInterceptor(),
-        ]);
+        AuthorizationInterceptor(),
+        LoggerInterceptor(),
+      ]);
       Response restGet = await dio.get(url);
       debugPrint("$url response:${restGet.data ?? ""}");
       dio.close();
       return restGet.data;
-    } on DioError catch (err) {
-      Map<String, dynamic> error = {};
-      error["code"] = err.response?.statusCode;
-      error["message"] = err.response?.statusMessage;
-      //final errorMessage = DioException.fromDioError(err).toString();
-      //throw errorMessage;
-      return error;
-    } catch (e) {
-      debugPrint(e.toString());
-      throw e.toString();
-    }
-  }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response!.data);
+        print(e.response!.headers);
+        print(e.response!.requestOptions);
 
-  static Future<dynamic> postApiNotBody(String url, {String? baseurl}) async {
-    try {
-      var dio = Dio(
-        BaseOptions(
-          baseUrl: baseUrl,
-          connectTimeout: 500000,
-          receiveTimeout: 300000,
-          responseType: ResponseType.json,
-          maxRedirects: 0,
-          contentType: 'application/x-www-form-urlencoded',
-        ),
-      )..interceptors.addAll([
-          AuthorizationInterceptor(),
-          LoggerInterceptor(),
-          // _interceptorWrapperPerf(),
-          // DioFirebasePerformanceInterceptor(),
-        ]);
-      Response restGet = await dio.post(url);
-      debugPrint("$url response:${restGet.data ?? ""}");
-      dio.close();
-      return restGet.data;
-    } on DioError catch (err) {
-      Map<String, dynamic> error = {};
-      error["code"] = err.response?.statusCode;
-      error["message"] = err.response?.statusMessage;
-      //final errorMessage = DioException.fromDioError(err).toString();
-      //throw errorMessage;
-      return error;
-    } catch (e) {
-      debugPrint(e.toString());
-      throw e.toString();
+        return jsonDecode(e.response.toString());
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.requestOptions);
+        print(e.message);
+      }
     }
   }
 
@@ -338,33 +300,32 @@ class Network {
       var dio = Dio(
         BaseOptions(
           baseUrl: baseUrl,
-          connectTimeout: 500000,
-          receiveTimeout: 300000,
+          connectTimeout: const Duration(milliseconds: 500000),
+          receiveTimeout: const Duration(milliseconds: 300000),
           responseType: ResponseType.json,
-          maxRedirects: 0,
+          maxRedirects: 1,
         ),
       )..interceptors.addAll([
-          AuthorizationInterceptor(),
-          LoggerInterceptor(),
-          // _interceptorWrapperPerf(),
-          // DioFirebasePerformanceInterceptor(),
-        ]);
+        AuthorizationInterceptor(),
+        LoggerInterceptor(),
+      ]);
       Response restGet = await dio.get(url, options: Options(headers: header));
       debugPrint("$url response:${restGet.data ?? ""}");
       dio.close();
       header.clear();
       return restGet.data;
-    } on DioError catch (err) {
-      //final errorMessage = DioException.fromDioError(err).toString();
-      //debugPrint("error ${err.response?.statusCode}");
-      //throw errorMessage;
-      Map<String, dynamic> map = {};
-      map["code"] = err.response?.statusCode;
-      return Future.value(map);
-    } catch (e) {
-      debugPrint(e.toString());
-      //throw e.toString();
-      return e;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response!.data);
+        print(e.response!.headers);
+        print(e.response!.requestOptions);
+
+        return jsonDecode(e.response.toString());
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.requestOptions);
+        print(e.message);
+      }
     }
   }
 
@@ -374,32 +335,33 @@ class Network {
       var dio = Dio(
         BaseOptions(
           baseUrl: baseUrl,
-          connectTimeout: 500000,
-          receiveTimeout: 300000,
+          connectTimeout: const Duration(milliseconds: 500000),
+          receiveTimeout: const Duration(milliseconds: 300000),
           responseType: ResponseType.json,
           maxRedirects: 0,
         ),
       )..interceptors.addAll([
-          // AuthorizationInterceptor(),
-          LoggerInterceptor(),
-          // _interceptorWrapperPerf(),
-          // DioFirebasePerformanceInterceptor(),
-        ]);
+        // AuthorizationInterceptor(),
+        LoggerInterceptor(),
+      ]);
       Response restValue =
-          await dio.put(url, data: body, options: Options(headers: header));
+      await dio.put(url, data: body, options: Options(headers: header));
       debugPrint("$url response:${restValue.data ?? ""}");
       dio.close();
       header.clear();
       return restValue.data;
-    } on DioError catch (err) {
-      // final errorMessage = DioException.fromDioError(err).toString();
-      // throw errorMessage;
-      Map<String, dynamic> map = {};
-      map["code"] = err.response?.statusCode;
-      return Future.value(map);
-    } catch (e) {
-      debugPrint(e.toString());
-      throw e.toString();
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response!.data);
+        print(e.response!.headers);
+        print(e.response!.requestOptions);
+
+        return jsonDecode(e.response.toString());
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.requestOptions);
+        print(e.message);
+      }
     }
   }
 
@@ -409,17 +371,15 @@ class Network {
       var dio = Dio(
         BaseOptions(
             baseUrl: baseUrl,
-            connectTimeout: 500000,
-            receiveTimeout: 300000,
+            connectTimeout: const Duration(milliseconds: 500000),
+            receiveTimeout: const Duration(milliseconds: 300000),
             responseType: ResponseType.json,
             maxRedirects: 0,
             contentType: 'application/x-www-form-urlencoded'),
       )..interceptors.addAll([
-          // AuthorizationInterceptor(),
-          LoggerInterceptor(),
-          // _interceptorWrapperPerf(),
-          // DioFirebasePerformanceInterceptor(),
-        ]);
+        // AuthorizationInterceptor(),
+        LoggerInterceptor(),
+      ]);
       Response restValue = await dio.put(url,
           data: body,
           options: Options(
@@ -428,16 +388,18 @@ class Network {
       dio.close();
       header.clear();
       return restValue.data;
-    } on DioError catch (err) {
-      // final errorMessage = DioException.fromDioError(err).toString();
-      // throw errorMessage;
-      Map<String, dynamic> error = {};
-      error["code"] = err.response?.statusCode;
-      error["message"] = err.response?.statusMessage;
-      return error;
-    } catch (e) {
-      debugPrint(e.toString());
-      throw e.toString();
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response!.data);
+        print(e.response!.headers);
+        print(e.response!.requestOptions);
+
+        return jsonDecode(e.response.toString());
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.requestOptions);
+        print(e.message);
+      }
     }
   }
 
@@ -446,52 +408,69 @@ class Network {
       var dio = Dio(
         BaseOptions(
           baseUrl: baseUrl,
-          connectTimeout: 500000,
-          receiveTimeout: 300000,
+          connectTimeout: const Duration(milliseconds: 500000),
+          receiveTimeout: const Duration(milliseconds: 300000),
           responseType: ResponseType.json,
           maxRedirects: 0,
         ),
       )..interceptors.addAll([
-          // AuthorizationInterceptor(),
-          LoggerInterceptor(),
-          // _interceptorWrapperPerf(),
-          // DioFirebasePerformanceInterceptor(),
-        ]);
+        // AuthorizationInterceptor(),
+        LoggerInterceptor(),
+      ]);
       Response restValue =
-          await dio.put(url, options: Options(headers: header));
+      await dio.put(url, options: Options(headers: header));
       debugPrint("$url response:${restValue.data ?? ""}");
       dio.close();
       header.clear();
       return restValue.data;
-    } on DioError catch (err) {
-      final errorMessage = DioException.fromDioError(err).toString();
-      throw errorMessage;
-    } catch (e) {
-      debugPrint(e.toString());
-      throw e.toString();
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response!.data);
+        print(e.response!.headers);
+        print(e.response!.requestOptions);
+
+        return jsonDecode(e.response.toString());
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.requestOptions);
+        print(e.message);
+      }
     }
   }
 
-  // static InterceptorsWrapper _interceptorWrapperPerf() {
-  //   return InterceptorsWrapper(
-  //     onRequest: (options, handler) {
-  //       final Trace httpTrace =
-  //       FirebasePerformance.instance.newTrace(options.uri.path);
-  //       httpTrace.start();
-  //       handler.next(options);
-  //     },
-  //     onResponse: (response, handler) {
-  //       final Trace httpTrace = FirebasePerformance.instance
-  //           .newTrace(response.requestOptions.uri.path);
-  //       httpTrace.stop();
-  //       handler.next(response);
-  //     },
-  //     onError: (DioError error, handler) {
-  //       final Trace httpTrace = FirebasePerformance.instance
-  //           .newTrace(error.requestOptions.uri.path);
-  //       httpTrace.stop();
-  //       handler.next(error);
-  //     },
-  //   );
-  // }
+  static Future<dynamic> deleteApi(String url, Map<String, dynamic> header) async {
+    try {
+      var dio = Dio(
+        BaseOptions(
+          baseUrl: baseUrl,
+          connectTimeout: const Duration(milliseconds: 500000),
+          receiveTimeout: const Duration(milliseconds: 300000),
+          responseType: ResponseType.json,
+          maxRedirects: 0,
+        ),
+      )..interceptors.addAll([
+        // AuthorizationInterceptor(),
+        LoggerInterceptor(),
+      ]);
+      Response restValue =
+      await dio.delete(url, options: Options(headers: header));
+      debugPrint("$url response:${restValue.data ?? ""}");
+      dio.close();
+      header.clear();
+      return restValue.data;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response!.data);
+        print(e.response!.headers);
+        print(e.response!.requestOptions);
+
+        return jsonDecode(e.response.toString());
+      } else {
+        // Something happened in setting up or sending the request that triggered an Error
+        print(e.requestOptions);
+        print(e.message);
+      }
+    }
+  }
+
 }

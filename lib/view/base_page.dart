@@ -36,9 +36,11 @@ class _BasePageState extends State<BasePage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Session().getUserLogin(),
+      future: Session().getUserToken(),
       builder: (_, snapshot) {
-        if (snapshot.data == null || snapshot.data == false) {
+        String? token = snapshot.data;
+
+        if (token == null || token == "") {
           return const LoginPage();
         } else {
           return Scaffold(

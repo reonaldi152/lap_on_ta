@@ -12,7 +12,7 @@ class MarketplacePage extends StatefulWidget {
 }
 
 class _MarketplacePageState extends State<MarketplacePage> {
-  final CarouselController _controller = CarouselController();
+  final CarouselSliderController _controller = CarouselSliderController();
   int _current = 0;
 
   final List<String> _bannerList = [
@@ -122,8 +122,8 @@ class _MarketplacePageState extends State<MarketplacePage> {
                           Image.asset("assets/ic_search_market.png", width: 24),
                           Text(
                             "Search Product",
-                            style:
-                                fontTextStyle.copyWith(color: Color(0xFFA2A2A2)),
+                            style: fontTextStyle.copyWith(
+                                color: Color(0xFFA2A2A2)),
                           )
                         ],
                       ),
@@ -204,14 +204,15 @@ class _MarketplacePageState extends State<MarketplacePage> {
                     },
                     child: Container(
                       margin: const EdgeInsets.only(left: 13),
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 16),
                       decoration: BoxDecoration(
                           color: isSelected
                               ? AppColor.colorPrimaryGreen
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColor.colorPrimaryGreen)),
+                          border:
+                              Border.all(color: AppColor.colorPrimaryGreen)),
                       child: Text(
                         categories[index],
                         style: fontTextStyle.copyWith(
@@ -253,10 +254,13 @@ class _MarketplacePageState extends State<MarketplacePage> {
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children: List.generate(3, (index) {
+                  children: List.generate(
+                3,
+                (index) {
                   return Container(
                     width: 184,
-                    margin: const EdgeInsets.symmetric(horizontal: 8.0), // Margin antar item
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 8.0), // Margin antar item
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: AppColor.white,
@@ -266,7 +270,8 @@ class _MarketplacePageState extends State<MarketplacePage> {
                           color: const Color(0xff94A8BE).withOpacity(0.3),
                           spreadRadius: 0.1,
                           blurRadius: 4,
-                          offset: const Offset(0.5, 0), // Mengatur posisi bayangan
+                          offset:
+                              const Offset(0.5, 0), // Mengatur posisi bayangan
                         )
                       ],
                     ),
@@ -275,10 +280,12 @@ class _MarketplacePageState extends State<MarketplacePage> {
                       children: [
                         Image.asset(
                           "assets/basket.png",
-                          width: 160,// Tentukan tinggi gambar
-                          fit: BoxFit.cover, // Mengatur agar gambar menutupi lebar dan tinggi
+                          width: 160, // Tentukan tinggi gambar
+                          fit: BoxFit
+                              .cover, // Mengatur agar gambar menutupi lebar dan tinggi
                         ),
-                        const SizedBox(height: 8), // Jarak antara gambar dan teks
+                        const SizedBox(
+                            height: 8), // Jarak antara gambar dan teks
                         Text(
                           "Molten Basket",
                           style: fontTextStyle.copyWith(
@@ -294,7 +301,8 @@ class _MarketplacePageState extends State<MarketplacePage> {
                             color: const Color(0xFFA2A2A2),
                           ),
                         ),
-                        const SizedBox(height: 8), // Jarak antara teks dan harga
+                        const SizedBox(
+                            height: 8), // Jarak antara teks dan harga
                         Row(
                           children: [
                             Text(
@@ -318,14 +326,18 @@ class _MarketplacePageState extends State<MarketplacePage> {
                       ],
                     ),
                   );
-                },)
-              ),
+                },
+              )),
             ),
             const SizedBox(height: 30),
 
             InkWell(
-              onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetailPage(),));
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProductDetailPage(),
+                    ));
               },
               child: Card(
                 margin: EdgeInsets.symmetric(horizontal: 24),

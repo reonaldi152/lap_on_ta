@@ -26,7 +26,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _current = 0;
-  final CarouselController _controller = CarouselController();
+  final CarouselSliderController _controller = CarouselSliderController();
 
   final List<String> _bannerList = [
     "assets/banner1.png",
@@ -48,165 +48,211 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _users == null ? const Center(child: CircularProgressIndicator(color: AppColor.colorPrimaryGreen,)) : SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: MediaQuery.of(context).padding.top + 36),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 26),
+      body: _users == null
+          ? const Center(
+              child: CircularProgressIndicator(
+              color: AppColor.colorPrimaryGreen,
+            ))
+          : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    _users?.name ?? "",
-                    style: fontTextStyle.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
+                  SizedBox(height: MediaQuery.of(context).padding.top + 36),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 26),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _users?.name ?? "",
+                          style: fontTextStyle.copyWith(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
+                        Text(
+                          "Jelajahi Olahraga yang seru!",
+                          style: fontTextStyle.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Text(
-                    "Jelajahi Olahraga yang seru!",
-                    style: fontTextStyle.copyWith(
-                      fontWeight: FontWeight.w600,
+                  const SizedBox(height: 24),
+                  CarouselSlider(
+                    items: _listBanner
+                        .map((e) => GestureDetector(
+                              onTap: () {},
+                              child: Container(
+                                margin:
+                                    const EdgeInsets.only(right: 6, left: 6),
+                                child: Center(
+                                  child: Image.network(
+                                    "https://laponid.com/storage/${e.imageUrl ?? ""}",
+                                    // width: 320,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Image.asset("assets/banner1.png"),
+                                  ),
+                                ),
+                              ),
+                            ))
+                        .toList(),
+                    carouselController: _controller,
+                    options: CarouselOptions(
+                        initialPage: (_bannerList.length / 2).floor(),
+                        aspectRatio: 2.4,
+                        enableInfiniteScroll: false,
+                        onPageChanged: (index, reason) {
+                          setState(() {
+                            _current = index;
+                          });
+                        }),
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 26),
+                    child: Text(
+                      "Categories",
+                      style: fontTextStyle.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 33),
+                  _listCategory.isEmpty
+                      ? Container()
+                      : SizedBox(
+                          height: 36,
+                          child: ListView.builder(
+                            padding: const EdgeInsets.only(left: 13, right: 26),
+                            itemCount: _listCategory.length,
+                            scrollDirection: Axis.horizontal,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              bool isSelected =
+                                  selectedCategory == _listCategory[index].id;
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedCategory = _listCategory[index].id;
+                                  });
+                                  getVenueByCategory(
+                                      categoryId: _listCategory[index].id);
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.only(left: 13),
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? AppColor.colorPrimaryGreen
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                          color: AppColor.colorPrimaryGreen)),
+                                  child: Text(
+                                    _listCategory[index].name,
+                                    style: fontTextStyle.copyWith(
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.w500,
+                                      color: isSelected
+                                          ? AppColor.white
+                                          : AppColor.colorPrimaryGreen,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                  const SizedBox(height: 32),
+                  _listVenue.isEmpty
+                      ? Container()
+                      : Column(
+                          children: List.generate(
+                            _listVenue.length,
+                            (index) {
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => VenueDetailPage(
+                                          venueId: _listVenue[index].id,
+                                        ),
+                                      ));
+                                },
+                                child: Center(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: AppColor.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(0xff94A8BE)
+                                              .withOpacity(0.3),
+                                          spreadRadius: 0.1,
+                                          blurRadius: 4,
+                                          offset: const Offset(0.5,
+                                              0), // changes position of shadow
+                                        )
+                                      ],
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Image.network(
+                                          "https://laponid.com/storage/${_listVenue[index].image ?? ""}",
+                                          width: 340,
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 16),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "${_listVenue[index].name}",
+                                                style: fontTextStyle.copyWith(
+                                                    color: AppColor.black,
+                                                    fontWeight:
+                                                        FontWeight.w700),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                "${_listVenue[index].address}",
+                                                style: fontTextStyle.copyWith(
+                                                    color: AppColor.black
+                                                        .withOpacity(0.5),
+                                                    fontSize: 12),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              Text(
+                                                "${_listVenue[index].price}/jam",
+                                                style: fontTextStyle.copyWith(
+                                                    color: AppColor.black,
+                                                    fontWeight:
+                                                        FontWeight.w700),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
-            CarouselSlider(
-              items: _listBanner
-                  .map((e) => GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 6, left: 6),
-                          child: Center(
-                            child: Image.network(
-                              "https://laponid.com/storage/${e.imageUrl ?? ""}",
-                              // width: 320,
-                              fit: BoxFit.cover,
-                              // errorBuilder: (context, error,
-                              //     stackTrace) =>
-                              //     Image.asset(
-                              //         "assets/placeholder_ads.png"),
-                            ),
-                          ),
-                        ),
-                      ))
-                  .toList(),
-              carouselController: _controller,
-
-              options: CarouselOptions(
-                  initialPage: (_bannerList.length / 2).floor(),
-                  aspectRatio: 2.4,
-                  enableInfiniteScroll: false,
-                  onPageChanged: (index, reason) {
-                    setState(() {
-                      _current = index;
-                    });
-                  }),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 26),
-              child: Text(
-                "Categories",
-                style: fontTextStyle.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-            const SizedBox(height: 33),
-            _listCategory.isEmpty ? Container() : SizedBox(
-              height: 36,
-              child: ListView.builder(
-                padding: const EdgeInsets.only(left: 13, right: 26),
-                itemCount: _listCategory.length,
-                scrollDirection: Axis.horizontal,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  bool isSelected = selectedCategory == _listCategory[index].id;
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedCategory =
-                        _listCategory[index].id;
-                      });
-                      getVenueByCategory(categoryId: _listCategory[index].id);
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(left: 13),
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppColor.colorPrimaryGreen
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(16),
-                          border:
-                              Border.all(color: AppColor.colorPrimaryGreen)),
-                      child: Text(
-                        _listCategory[index].name,
-                        style: fontTextStyle.copyWith(
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                          color: isSelected ? AppColor.white : AppColor.colorPrimaryGreen,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 32),
-            _listVenue.isEmpty ? Container() : Column(
-              children: List.generate(_listVenue.length, (index) {
-                return InkWell(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => VenueDetailPage(venueId: _listVenue[index].id,),));
-                  },
-                  child: Center(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: AppColor.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xff94A8BE).withOpacity(0.3),
-                            spreadRadius: 0.1,
-                            blurRadius: 4,
-                            offset: const Offset(0.5, 0), // changes position of shadow
-                          )
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Image.network("https://laponid.com/storage/${_listVenue[index].image ?? ""}", width: 340,),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("${_listVenue[index].name}", style: fontTextStyle.copyWith(color: AppColor.black, fontWeight: FontWeight.w700),),
-                                const SizedBox(height: 4),
-                                Text("${_listVenue[index].address}", style: fontTextStyle.copyWith(color: AppColor.black.withOpacity(0.5), fontSize: 12),),
-                                const SizedBox(height: 10),
-                                Text("${_listVenue[index].price}/jam", style: fontTextStyle.copyWith(color: AppColor.black, fontWeight: FontWeight.w700),),
-
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },),
-            ),
-
-          ],
-        ),
-      ),
     );
   }
 
@@ -225,7 +271,7 @@ class _HomePageState extends State<HomePage> {
           if (!mounted) return;
           Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (_) => const BasePage()),
-                  (Route<dynamic> route) => false);
+              (Route<dynamic> route) => false);
         }
       });
     }
@@ -233,49 +279,70 @@ class _HomePageState extends State<HomePage> {
 
   List<Category> _listCategory = [];
   getCategory() {
-    VenueViewmodel().category().then((value){
-      if (value.code == 200){
+    VenueViewmodel().category().then((value) {
+      if (value.code == 200) {
         UnmodifiableListView listData = UnmodifiableListView(value.data);
         setState(() {
           _listCategory = listData.map((e) => Category.fromJson(e)).toList();
         });
         if (_listCategory.isNotEmpty) {
-          selectedCategory = _listCategory[0].id; // Set default selected category to the first item
+          selectedCategory = _listCategory[0]
+              .id; // Set default selected category to the first item
           getVenueByCategory(categoryId: selectedCategory);
         }
       } else {
+        if (!mounted) return;
+
         showToast(context: context, msg: value.message);
       }
     });
   }
 
   List<Venue> _listVenue = [];
-  getVenueByCategory({categoryId}) {
-    VenueViewmodel().venueByCategory(categoryId: categoryId).then((value){
-      if (value.code == 200){
-        UnmodifiableListView listData = UnmodifiableListView(value.data);
-        setState(() {
-          _listVenue = listData.map((e) => Venue.fromJson(e)).toList();
-        });
+  getVenueByCategory({required int categoryId}) async {
+    try {
+      final value =
+          await VenueViewmodel().venueByCategory(categoryId: categoryId);
+
+      if (value.code == 200) {
+        // Pastikan value.data berisi data paginasi
+        if (value.data != null && value.data['data'] is List) {
+          setState(() {
+            _listVenue = (value.data['data'] as List)
+                .map((e) => Venue.fromJson(e))
+                .toList();
+          });
+        } else {
+          setState(() {
+            _listVenue = [];
+          });
+          showToast(context: context, msg: "Data venue tidak valid");
+        }
       } else {
         setState(() {
           _listVenue = [];
         });
-        // showToast(context: context, msg: value.message);
+        showToast(context: context, msg: value.message);
       }
-    });
+    } catch (e) {
+      setState(() {
+        _listVenue = [];
+      });
+      showToast(context: context, msg: "Terjadi kesalahan: $e");
+    }
   }
 
   List<BannerModel> _listBanner = [];
   getBanner() {
-    BannerViewmodel().banner().then((value){
-      if (value.code == 200){
+    BannerViewmodel().banner().then((value) {
+      if (value.code == 200) {
         UnmodifiableListView listData = UnmodifiableListView(value.data);
         setState(() {
           _listBanner = listData.map((e) => BannerModel.fromJson(e)).toList();
         });
         if (_listCategory.isNotEmpty) {
-          selectedCategory = _listCategory[0].id; // Set default selected category to the first item
+          selectedCategory = _listCategory[0]
+              .id; // Set default selected category to the first item
           getVenueByCategory(categoryId: selectedCategory);
         }
       } else {

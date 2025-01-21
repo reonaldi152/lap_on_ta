@@ -83,29 +83,36 @@ class _BookingPageState extends State<BookingPage> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8.0),
                         child: Image.network(
-                          "https://picsum.photos/300/300",
+                          "https://laponid.com/storage/${_scheduleModel?.venue?.image}",
                           width: 70,
+                          errorBuilder: (context, error, stackTrace) => Image.network(
+                            "https://picsum.photos/300/300",
+                            width: 70,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _scheduleModel?.venue?.name ?? "",
-                            style: fontTextStyle.copyWith(
-                                color: AppColor.black,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16),
-                          ),
-                          Text(
-                            "${_scheduleModel?.schedules?.length} Jadwal Tersedia",
-                            style: fontTextStyle.copyWith(
-                                color: AppColor.colorPrimaryGreen,
-                                fontWeight: FontWeight.w600),
-                          )
-                        ],
-                      )
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _scheduleModel?.venue?.name ?? "",
+                              style: fontTextStyle.copyWith(
+                                  color: AppColor.black,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16),
+                              maxLines: 3, // Batasi hanya 1 baris
+                            ),
+                            Text(
+                              "${_scheduleModel?.schedules?.length ?? 0} Jadwal Tersedia",
+                              style: fontTextStyle.copyWith(
+                                  color: AppColor.colorPrimaryGreen,
+                                  fontWeight: FontWeight.w600),
+                            )
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),

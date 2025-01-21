@@ -52,7 +52,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
         ),
       ),
-      body: code != 201 ? Center(child: CircularProgressIndicator(),) : Container(
+      body: code != 200 ? Center(child: CircularProgressIndicator(),) : Container(
         height: MediaQuery.of(context).size.height,
         margin: EdgeInsets.only(top: 12),
         decoration: const BoxDecoration(
@@ -149,7 +149,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             Padding(
                               padding: const EdgeInsets.only(right: 16.0),
                               child: Text(
-                                'Rp 70.000',
+                                "${_venue?.price}",
                                 style: fontTextStyle.copyWith(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -177,7 +177,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 SizedBox(height: 8),
                 _buildRow('Admin', '', isLink: true),
                 SizedBox(height: 8),
-                _buildRow('PPN (10%)', ''),
+                _buildRow('PPN (11%)', ''),
                 Divider(thickness: 1, color: Colors.grey[300]),
                 SizedBox(height: 8),
                 _buildRow('Total', total, isBold: true),
@@ -297,12 +297,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String dateBooking = "", total = "", startTime = "", endTime = "";
 
   getBooking(){
-    BookingViewmodel().booking(categoryId: widget.categoryId, bookingDate: widget.bookingDate, endTime: widget.endTime, startTime: widget.startTime, taxPercentage: "1000", totalPayment: widget.totalPayment, venueId: widget.venueId).then((value) {
-      if (value.code == 201){
+    BookingViewmodel().booking(categoryId: widget.categoryId, bookingDate: widget.bookingDate, endTime: widget.endTime, startTime: widget.startTime, taxPercentage: "11", totalPayment: widget.totalPayment, venueId: widget.venueId).then((value) {
+      if (value.code == 200){
         setState(() {
           code = value.code;
           dateBooking = value.data['booking_date'];
-          total = value.data['total_payment'];
+          total = value.data['total_payment'].toString();
           startTime = value.data['start_time'];
           endTime = value.data['end_time'];
         });

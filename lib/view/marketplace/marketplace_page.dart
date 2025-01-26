@@ -1,8 +1,15 @@
+import 'dart:collection';
+
 import 'package:carousel_slider/carousel_controller.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lapon/config/app_color.dart';
+import 'package:flutter_lapon/model/category_marketplace/category_marketplace.dart';
+import 'package:flutter_lapon/model/product/product.dart';
 import 'package:flutter_lapon/view/marketplace/product_detail/product_detail_page.dart';
+import 'package:flutter_lapon/viewmodel/product_viewmodel.dart';
+
+import '../../widget/custom_toast.dart';
 
 class MarketplacePage extends StatefulWidget {
   const MarketplacePage({super.key});
@@ -20,8 +27,18 @@ class _MarketplacePageState extends State<MarketplacePage> {
     "assets/market_banner2.png",
   ];
 
-  String selectedCategory = "All";
-  List<String> categories = ["All", "Sepak Bola", "Basket", "Futsal"];
+  // String selectedCategory = "All";
+  // List<String> categories = ["All", "Sepak Bola", "Basket", "Futsal"];
+
+  int selectedCategory = 0;
+
+  @override
+  void initState() {
+    getCategoryMarketplace();
+    super.initState();
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -186,38 +203,42 @@ class _MarketplacePageState extends State<MarketplacePage> {
                   }),
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              height: 40,
+            _listCategoryMarketplace.isEmpty
+                ? Container()
+                : SizedBox(
+              height: 36,
               child: ListView.builder(
                 padding: const EdgeInsets.only(left: 13, right: 26),
-                itemCount: categories.length,
+                itemCount: _listCategoryMarketplace.length,
                 scrollDirection: Axis.horizontal,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
-                  bool isSelected = selectedCategory == categories[index];
+                  bool isSelected =
+                      selectedCategory == _listCategoryMarketplace[index].id;
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        selectedCategory =
-                            categories[index]; // Set kategori yang dipilih
+                        selectedCategory = _listCategoryMarketplace[index].id;
                       });
+                      getProductByCategory(
+                          categoryMarketplaceId: _listCategoryMarketplace[index].id);
                     },
                     child: Container(
                       margin: const EdgeInsets.only(left: 13),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                       decoration: BoxDecoration(
                           color: isSelected
                               ? AppColor.colorPrimaryGreen
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(16),
-                          border:
-                              Border.all(color: AppColor.colorPrimaryGreen)),
+                          border: Border.all(
+                              color: AppColor.colorPrimaryGreen)),
                       child: Text(
-                        categories[index],
+                        _listCategoryMarketplace[index].name,
                         style: fontTextStyle.copyWith(
-                          fontWeight:
-                              isSelected ? FontWeight.w600 : FontWeight.w500,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
                           color: isSelected
                               ? AppColor.white
                               : AppColor.colorPrimaryGreen,
@@ -239,13 +260,13 @@ class _MarketplacePageState extends State<MarketplacePage> {
                         fontWeight: FontWeight.w700, fontSize: 16),
                   ),
                   const Spacer(),
-                  Text(
-                    "See All",
-                    style: fontTextStyle.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: AppColor.colorPrimaryGreen,
-                    ),
-                  ),
+                  // Text(
+                  //   "See All",
+                  //   style: fontTextStyle.copyWith(
+                  //     fontWeight: FontWeight.w700,
+                  //     color: AppColor.colorPrimaryGreen,
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -255,75 +276,83 @@ class _MarketplacePageState extends State<MarketplacePage> {
               scrollDirection: Axis.horizontal,
               child: Row(
                   children: List.generate(
-                3,
+                _listProduct.length,
                 (index) {
-                  return Container(
-                    width: 184,
-                    margin: const EdgeInsets.symmetric(
-                        horizontal: 8.0), // Margin antar item
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColor.white,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xff94A8BE).withOpacity(0.3),
-                          spreadRadius: 0.1,
-                          blurRadius: 4,
-                          offset:
-                              const Offset(0.5, 0), // Mengatur posisi bayangan
-                        )
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Image.asset(
-                          "assets/basket.png",
-                          width: 160, // Tentukan tinggi gambar
-                          fit: BoxFit
-                              .cover, // Mengatur agar gambar menutupi lebar dan tinggi
-                        ),
-                        const SizedBox(
-                            height: 8), // Jarak antara gambar dan teks
-                        Text(
-                          "Molten Basket",
-                          style: fontTextStyle.copyWith(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
+                  return GestureDetector(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetailPage(productId: _listProduct[index].productId,),));
+                    },
+                    child: Container(
+                      width: 184,
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 8.0), // Margin antar item
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColor.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xff94A8BE).withOpacity(0.3),
+                            spreadRadius: 0.1,
+                            blurRadius: 4,
+                            offset:
+                                const Offset(0.5, 0), // Mengatur posisi bayangan
+                          )
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Image.network(
+                            "https://laponid.com/storage/${_listProduct[index].image}",
+                            width: 160, // Tentukan tinggi gambar
+                            fit: BoxFit
+                                .cover, // Mengatur agar gambar menutupi lebar dan tinggi
+                            errorBuilder:
+                                (context, error, stackTrace) =>
+                            const SizedBox(width: double.infinity, height: 100, child: Center(child: Text("Can't Load Image"),),),
                           ),
-                        ),
-                        Text(
-                          "Living room",
-                          style: fontTextStyle.copyWith(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                            color: const Color(0xFFA2A2A2),
+                          const SizedBox(
+                              height: 8), // Jarak antara gambar dan teks
+                          Text(
+                            _listProduct[index].nameProduct ?? "",
+                            style: fontTextStyle.copyWith(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                            ),
                           ),
-                        ),
-                        const SizedBox(
-                            height: 8), // Jarak antara teks dan harga
-                        Row(
-                          children: [
-                            Text(
-                              "Rp 2.595.000",
-                              style: fontTextStyle.copyWith(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
+                          // Text(
+                          // "${_listProduct[index].categoryMarketplaceId}",
+                          //   style: fontTextStyle.copyWith(
+                          //     fontWeight: FontWeight.w700,
+                          //     fontSize: 16,
+                          //     color: const Color(0xFFA2A2A2),
+                          //   ),
+                          // ),
+                          const SizedBox(
+                              height: 8), // Jarak antara teks dan harga
+                          Row(
+                            children: [
+                              Text(
+                                "${_listProduct[index].price}",
+                                style: fontTextStyle.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                ),
                               ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(6),
-                                color: AppColor.colorPrimaryGreen,
+                              const Spacer(),
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(6),
+                                  color: AppColor.colorPrimaryGreen,
+                                ),
+                                child: Icon(Icons.add, color: AppColor.white),
                               ),
-                              child: Icon(Icons.add, color: AppColor.white),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -331,97 +360,97 @@ class _MarketplacePageState extends State<MarketplacePage> {
             ),
             const SizedBox(height: 30),
 
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProductDetailPage(),
-                    ));
-              },
-              child: Card(
-                margin: EdgeInsets.symmetric(horizontal: 24),
-                color: AppColor.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-                elevation: 4.0,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: Icon(
-                          Icons.favorite_border,
-                          color: Colors.teal,
-                        ),
-                      ),
-                      // Center(
-                      //   child: Image.network(
-                      //     'https://moltensports.com/images/products/20200807_162244basketball-GG7X-700px.png',
-                      //     width: 120,
-                      //     height: 120,
-                      //   ),
-                      // ),
-                      Center(
-                        child: Image.asset(
-                          'assets/basket.png',
-                          width: 120,
-                          height: 120,
-                        ),
-                      ),
-                      SizedBox(height: 16.0),
-                      Text(
-                        'For Lifestyle',
-                        style: fontTextStyle.copyWith(
-                          color: Colors.grey,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                      Text(
-                        'Basket Ball',
-                        style: fontTextStyle.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18.0,
-                        ),
-                      ),
-                      SizedBox(height: 8.0),
-                      Text(
-                        'This edition features bold pops of color & amplified detailing.',
-                        style: fontTextStyle.copyWith(
-                          color: Colors.grey,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                      SizedBox(height: 16.0),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Rp 990.000',
-                            style: fontTextStyle.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.0,
-                            ),
-                          ),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                            ),
-                            onPressed: () {},
-                            child: Text('Sewa'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            // InkWell(
+            //   onTap: () {
+            //     Navigator.push(
+            //         context,
+            //         MaterialPageRoute(
+            //           builder: (context) => ProductDetailPage(),
+            //         ));
+            //   },
+            //   child: Card(
+            //     margin: const EdgeInsets.symmetric(horizontal: 24),
+            //     color: AppColor.white,
+            //     shape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(16.0),
+            //     ),
+            //     elevation: 4.0,
+            //     child: Padding(
+            //       padding: const EdgeInsets.all(16.0),
+            //       child: Column(
+            //         crossAxisAlignment: CrossAxisAlignment.start,
+            //         children: [
+            //           Align(
+            //             alignment: Alignment.topRight,
+            //             child: Icon(
+            //               Icons.favorite_border,
+            //               color: Colors.teal,
+            //             ),
+            //           ),
+            //           // Center(
+            //           //   child: Image.network(
+            //           //     'https://moltensports.com/images/products/20200807_162244basketball-GG7X-700px.png',
+            //           //     width: 120,
+            //           //     height: 120,
+            //           //   ),
+            //           // ),
+            //           Center(
+            //             child: Image.asset(
+            //               'assets/basket.png',
+            //               width: 120,
+            //               height: 120,
+            //             ),
+            //           ),
+            //           SizedBox(height: 16.0),
+            //           Text(
+            //             'For Lifestyle',
+            //             style: fontTextStyle.copyWith(
+            //               color: Colors.grey,
+            //               fontSize: 12.0,
+            //             ),
+            //           ),
+            //           Text(
+            //             'Basket Ball',
+            //             style: fontTextStyle.copyWith(
+            //               fontWeight: FontWeight.bold,
+            //               fontSize: 18.0,
+            //             ),
+            //           ),
+            //           SizedBox(height: 8.0),
+            //           Text(
+            //             'This edition features bold pops of color & amplified detailing.',
+            //             style: fontTextStyle.copyWith(
+            //               color: Colors.grey,
+            //               fontSize: 12.0,
+            //             ),
+            //           ),
+            //           SizedBox(height: 16.0),
+            //           Row(
+            //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //             children: [
+            //               Text(
+            //                 'Rp 990.000',
+            //                 style: fontTextStyle.copyWith(
+            //                   fontWeight: FontWeight.bold,
+            //                   fontSize: 16.0,
+            //                 ),
+            //               ),
+            //               // ElevatedButton(
+            //               //   style: ElevatedButton.styleFrom(
+            //               //     shape: RoundedRectangleBorder(
+            //               //       borderRadius: BorderRadius.circular(20.0),
+            //               //     ),
+            //               //   ),
+            //               //   onPressed: () {},
+            //               //   child: Text('Sewa'),
+            //               // ),
+            //             ],
+            //           ),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
             const SizedBox(height: 30),
 
             // Padding(
@@ -448,5 +477,63 @@ class _MarketplacePageState extends State<MarketplacePage> {
         ),
       ),
     );
+  }
+
+
+  List<CategoryMarketplace> _listCategoryMarketplace = [];
+  getCategoryMarketplace() {
+    ProductViewmodel().categoryMarketplace().then((value) {
+      if (value.code == 200) {
+        UnmodifiableListView listData = UnmodifiableListView(value.data);
+        setState(() {
+          _listCategoryMarketplace = listData.map((e) => CategoryMarketplace.fromJson(e)).toList();
+        });
+        if (_listCategoryMarketplace.isNotEmpty) {
+          selectedCategory = _listCategoryMarketplace[0]
+              .id; // Set default selected category to the first item
+          getProductByCategory(categoryMarketplaceId: selectedCategory);
+        }
+      } else {
+        if (!mounted) return;
+
+        showToast(context: context, msg: value.message);
+      }
+    });
+  }
+
+  List<Product> _listProduct = [];
+  getProductByCategory({required int categoryMarketplaceId}) async {
+    try {
+      final value =
+      await ProductViewmodel().productByCategory(categoryMarketplaceId: categoryMarketplaceId);
+
+      if (value.code == 200) {
+        if (value.data != null && value.data is List) {
+          setState(() {
+            _listProduct = (value.data as List)
+                .map((e) => Product.fromJson(e))
+                .toList();
+          });
+        } else {
+          setState(() {
+            _listProduct = [];
+          });
+          if (!mounted) return;
+          showToast(context: context, msg: "Data venue tidak valid");
+        }
+      } else {
+        setState(() {
+          _listProduct = [];
+        });
+        if (!mounted) return;
+        showToast(context: context, msg: value.message);
+      }
+    } catch (e) {
+      setState(() {
+        _listProduct = [];
+      });
+      if (!mounted) return;
+      showToast(context: context, msg: "Terjadi kesalahan: $e");
+    }
   }
 }

@@ -18,4 +18,11 @@ class Endpoint {
 
   static const String bookingUrl = 'api/bookings';
 
+  static const String checkout = 'api/checkout';
+  static const String checkoutMarketplace = 'api/checkout-marketplace';
+
+  static const String product = 'api/products';
+  static const String productByCategory = 'api/product/category';
+  static const String categoryMarketplace = 'api/category-marketplaces';
+
 }

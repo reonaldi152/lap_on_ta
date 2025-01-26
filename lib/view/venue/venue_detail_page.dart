@@ -25,7 +25,7 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
       backgroundColor: AppColor.white,
       appBar: AppBar(
         title: Text(
-          "Check Out",
+          "Venue Detail",
           style: fontTextStyle.copyWith(
               color: AppColor.colorPrimaryGreen, fontSize: 18, fontWeight: FontWeight.w700),
         ),
@@ -50,6 +50,9 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
                     "https://laponid.com/storage/${_venue?.image}",
                     fit: BoxFit.cover,
                     width: double.infinity,
+                    errorBuilder:
+                        (context, error, stackTrace) =>
+                    const Center(child: Text("Can't Load Image"),),
                   ),
                 ),
                 Container(
@@ -81,7 +84,7 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                _venue?.address ?? "",
+                                _venue?.address ?? "no address",
                                 style: fontTextStyle.copyWith(fontSize: 13),
                               ),
                             ),

@@ -208,6 +208,9 @@ class _HomePageState extends State<HomePage> {
                             Image.network(
                               "https://laponid.com/storage/${_listVenue[index].image ?? ""}",
                               width: 340,
+                              errorBuilder:
+                                  (context, error, stackTrace) =>
+                                  const SizedBox(width: 340, height: 150, child: Center(child: Text("Can't Load Image"),),),
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(
@@ -225,7 +228,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    "${_listVenue[index].address}",
+                                    "${_listVenue[index].address ?? "no address"}",
                                     style: fontTextStyle.copyWith(
                                         color: AppColor.black
                                             .withOpacity(0.5),

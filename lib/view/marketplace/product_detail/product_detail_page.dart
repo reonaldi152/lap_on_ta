@@ -1,15 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_lapon/model/product/product.dart';
+import 'package:flutter_lapon/viewmodel/product_viewmodel.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../config/app_color.dart';
+import '../../../viewmodel/checkout_viewmodel.dart';
+import '../../../widget/custom_toast.dart';
 
 class ProductDetailPage extends StatefulWidget {
-  const ProductDetailPage({super.key});
+  const ProductDetailPage({super.key, required this.productId});
+  final dynamic productId;
 
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
+  @override
+  void initState() {
+    getProductDetail();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +50,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
+      body: _product == null ? const Center(child: CircularProgressIndicator(),) : SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -49,7 +61,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   alignment: Alignment.center,
                   children: [
                     Container(
-                      margin: EdgeInsets.symmetric(horizontal: 16),
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
                       width: double.infinity,
                       height: 200,
                       decoration: BoxDecoration(
@@ -57,15 +69,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    // Image.network(
-                    //   'https://moltensports.com/images/products/20200807_162244basketball-GG7X-700px.png',
-                    //   width: 180,
-                    //   height: 180,
-                    // ),
-                    Image.asset(
-                      'assets/basket.png',
+                    Image.network(
+                      "https://laponid.com/storage/${_product?.image}",
                       width: 180,
                       height: 180,
+                      errorBuilder:
+                          (context, error, stackTrace) =>
+                      const SizedBox(width: double.infinity, height: 180, child: Center(child: Text("Can't Load Image"),),),
                     ),
                   ],
                 ),
@@ -92,7 +102,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Bola Basket',
+                      "${_product?.nameProduct}",
                       style: fontTextStyle.copyWith(
                         fontWeight: FontWeight.bold,
                         fontSize: 24.0,
@@ -110,7 +120,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   // Icon(Icons.favorite_border, color: Colors.teal),
                 ],
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               Text(
                 'Deskripsi',
                 style: fontTextStyle.copyWith(
@@ -119,9 +129,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   color: Colors.grey[700],
                 ),
               ),
-              SizedBox(height: 8.0),
+              const SizedBox(height: 8.0),
               Text(
-                'This edition of the RS-X T3CH features bold pops of color and amplified detailing in the upper.',
+                "${_product?.description}",
                 style: fontTextStyle.copyWith(fontSize: 16.0, color: Colors.grey[600]),
               ),
               // SizedBox(height: 16.0),
@@ -204,22 +214,23 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Rp 150.000",
+                "${_product?.price}",
                 style: fontTextStyle.copyWith(
                     color: const Color(0xFF121212),
                     fontWeight: FontWeight.w700, fontSize: 18),
               ),
               InkWell(
                 onTap: (){
+                  showPaymentConfirmationDialog(context);
                 },
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 11, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 16),
                   height: 40,
                   decoration: BoxDecoration(
                       color: AppColor.colorPrimaryGreen,
                       borderRadius: BorderRadius.circular(12)),
                   child: Text(
-                    "Checkout Sekarang",
+                    "Bayar Sekarang",
                     style: fontTextStyle.copyWith(
                       color: AppColor.white,
                       fontWeight: FontWeight.w700,
@@ -275,5 +286,104 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         ),
       ),
     );
+  }
+
+  void showPaymentConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Dialog tidak akan tertutup dengan menekan di luar
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          title: Text(
+            "Konfirmasi Pembayaran",
+            style: fontTextStyle.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+          ),
+          content: Text(
+            "Apakah Anda yakin ingin melanjutkan ke pembayaran?",
+            style: fontTextStyle.copyWith(
+              fontSize: 16,
+              color: Colors.grey[700],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Menutup dialog
+              },
+              child: Text(
+                "Batal",
+                style: fontTextStyle.copyWith(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColor.colorPrimaryGreen,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Menutup dialog
+                postCheckoutMarketplace();
+
+              },
+              child: Text(
+                "Bayar Sekarang",
+                style: fontTextStyle.copyWith(
+                  color: AppColor.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  Product? _product;
+  getProductDetail() {
+    ProductViewmodel().detailProduct(productId: widget.productId).then((value) {
+      if (value.code == 200) {
+        setState(() {
+          _product = Product.fromJson(value.data);
+        });
+      }
+    });
+  }
+
+  postCheckoutMarketplace(){
+    debugPrint("product id nya ${widget.productId}");
+    CheckoutViewmodel().checkoutMarketplace(productId: widget.productId).then((value) {
+      if (value.code == 200){
+        // setState(() {
+        //   isLoading = false;
+        // });
+        debugPrint("payment_url nya : ${value.data['payment_url']}");
+        _launchUrl(url: value.data['payment_url']);
+      } else {
+        // setState(() {
+        //   isLoading = false;
+        // });
+        if (!mounted) return;
+        showToast(context: context, msg: value.message);
+      }
+    },);
+  }
+
+  Future<void> _launchUrl({String? url}) async {
+    if (!await launchUrl(Uri.parse(url ?? ""))) {
+      throw Exception('Could not launch $url');
+    }
   }
 }

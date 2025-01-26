@@ -48,9 +48,9 @@ class _BookingPageState extends State<BookingPage> {
           ),
         ),
       ),
-      body: _scheduleModel == null ? Center(child: CircularProgressIndicator(),) : Container(
+      body: _scheduleModel == null ? const Center(child: CircularProgressIndicator(),) : Container(
         height: MediaQuery.of(context).size.height,
-        margin: EdgeInsets.only(top: 12),
+        margin: const EdgeInsets.only(top: 12),
         decoration: const BoxDecoration(
             color: AppColor.white,
             borderRadius: BorderRadius.only(
@@ -105,7 +105,7 @@ class _BookingPageState extends State<BookingPage> {
                               maxLines: 3, // Batasi hanya 1 baris
                             ),
                             Text(
-                              "${_scheduleModel?.schedules?.length ?? 0} Jadwal Tersedia",
+                              "${_scheduleModel?.availableSchedulesCount ?? 0} Jadwal Tersedia",
                               style: fontTextStyle.copyWith(
                                   color: AppColor.colorPrimaryGreen,
                                   fontWeight: FontWeight.w600),
@@ -124,7 +124,7 @@ class _BookingPageState extends State<BookingPage> {
                       isSelected = selectedSchedule == data;
 
                     });
-                    return GestureDetector(
+                    return _scheduleModel?.availableSchedulesCount == 0 ? Container() : GestureDetector(
                       onTap: () {
                         setState(() {
                           if (isSelected) {
@@ -137,9 +137,9 @@ class _BookingPageState extends State<BookingPage> {
                         });
                       },
                       child: Container(
-                        margin: EdgeInsets.symmetric(
+                        margin: const EdgeInsets.symmetric(
                             horizontal: 30, vertical: 8),
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                             vertical: 8, horizontal: 25),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),

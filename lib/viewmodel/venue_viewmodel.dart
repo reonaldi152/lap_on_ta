@@ -8,11 +8,6 @@ import '../config/pref.dart';
 
 class VenueViewmodel {
   Future<Resp> venue() async {
-    // String? token = await Session().getUserToken();
-    //
-    // var header = <String, dynamic>{};
-    // header[HttpHeaders.authorizationHeader] = 'Bearer $token';
-
     var resp = await Network.getApi(Endpoint.venueUrl);
     Resp data = Resp.fromJson(resp);
     return data;
@@ -26,10 +21,6 @@ class VenueViewmodel {
   }
 
   Future<Resp> category() async {
-    // String? token = await Session().getUserToken();
-    //
-    // var header = <String, dynamic>{};
-    // header[HttpHeaders.authorizationHeader] = 'Bearer $token';
 
     var resp = await Network.getApi(Endpoint.categoryUrl);
     Resp data = Resp.fromJson(resp);

@@ -1,21 +1,25 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:flutter_lapon/view/payment/payment_webview_page.dart';
 import 'package:flutter_lapon/viewmodel/booking_viewmodel.dart';
+import 'package:flutter_lapon/viewmodel/checkout_viewmodel.dart';
 import 'package:flutter_lapon/widget/custom_toast.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/app_color.dart';
 import '../../model/venue/venue.dart';
 import '../../viewmodel/venue_viewmodel.dart';
 
 class CheckoutPage extends StatefulWidget {
-  const CheckoutPage({super.key, this.venueId, this.categoryId, this.bookingDate, this.startTime, this.endTime, this.totalPayment});
+  const CheckoutPage({super.key, this.venueId, this.categoryId, this.bookingDate, this.startTime, this.endTime, this.totalPayment, this.idBooking});
   final dynamic venueId;
   final dynamic categoryId;
   final dynamic bookingDate;
   final dynamic startTime;
   final dynamic endTime;
   final dynamic totalPayment;
+  final dynamic idBooking;
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
@@ -24,12 +28,13 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   @override
   void initState() {
-    getBooking();
+    postBooking();
     getDetailVenue();
     super.initState();
   }
 
   dynamic code;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +57,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
         ),
       ),
-      body: code != 200 ? Center(child: CircularProgressIndicator(),) : Container(
+      body: code != 200 ? const Center(child: CircularProgressIndicator(),) : Container(
         height: MediaQuery.of(context).size.height,
-        margin: EdgeInsets.only(top: 12),
+        margin: const EdgeInsets.only(top: 12),
         decoration: const BoxDecoration(
             color: AppColor.white,
             borderRadius: BorderRadius.only(
@@ -113,13 +118,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           fontWeight: FontWeight.w700,
                           fontSize: 14),
                     ),
-                    IconButton(onPressed: (){}, icon: Icon(Icons.delete, color: AppColor.colorPrimaryGreen,),),
+                    IconButton(onPressed: (){}, icon: const Icon(Icons.delete, color: AppColor.colorPrimaryGreen,),),
                   ],
                 ),
                 Text(
                   dateBooking,
                   style: fontTextStyle.copyWith(
-                    color: Color(0xFF6F737A),
+                    color: const Color(0xFF6F737A),
                     fontWeight: FontWeight.w500,
                     fontSize: 14,),
                 ),
@@ -128,7 +133,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   children: [
                     Expanded(
                       child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
                           color: AppColor.colorPrimaryGreen.withOpacity(0.5), // Warna background baris hijau muda
                           borderRadius: BorderRadius.circular(8),
@@ -138,14 +143,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             Padding(
                               padding: const EdgeInsets.only(left: 16.0),
                               child: Text(
-                                "${startTime} - ${endTime}",
+                                "$startTime - $endTime",
                                 style: fontTextStyle.copyWith(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
-                            Spacer(),
+                            const Spacer(),
                             Padding(
                               padding: const EdgeInsets.only(right: 16.0),
                               child: Text(
@@ -153,7 +158,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 style: fontTextStyle.copyWith(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF4B6975), // Warna harga sesuai gambar
+                                  color: const Color(0xFF4B6975), // Warna harga sesuai gambar
                                 ),
                               ),
                             ),
@@ -172,17 +177,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     color: AppColor.colorPrimaryGreen, // Warna hijau teks header
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 _buildRow('Biaya Sewa', total),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 _buildRow('Admin', '', isLink: true),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 _buildRow('PPN (11%)', ''),
                 Divider(thickness: 1, color: Colors.grey[300]),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 _buildRow('Total', total, isBold: true),
                 Divider(thickness: 1, color: Colors.grey[300]),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
 
                 const SizedBox(height: 36),
               ],
@@ -195,8 +200,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
         height: 80,
         width: double.infinity,
         child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
           decoration: BoxDecoration(
               color: AppColor.white,
               boxShadow: [
@@ -233,15 +238,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
               InkWell(
                 onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => CheckoutPage(),));
+                  setState(() {
+                    isLoading = true;
+                  });
+                  postCheckout(bookingId: bookingId);
                 },
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 11, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 16),
                   height: 40,
                   decoration: BoxDecoration(
                       color: AppColor.colorPrimaryGreen,
                       borderRadius: BorderRadius.circular(12)),
-                  child: Text(
+                  child: isLoading ? const Center(child: CircularProgressIndicator(color: AppColor.white, strokeWidth: 2,)) : Text(
                     "Checkout Sekarang",
                     style: fontTextStyle.copyWith(
                       color: AppColor.white,
@@ -270,7 +278,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             title,
             style: fontTextStyle.copyWith(
               fontSize: 16,
-              color: Color(0xFF4B6975), // Warna link biru
+              color: const Color(0xFF4B6975), // Warna link biru
               decoration: TextDecoration.underline,
             ),
           ),
@@ -287,7 +295,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           style: fontTextStyle.copyWith(
             fontSize: 16,
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-            color: Color(0xFF4B6975), // Warna teks angka
+            color: const Color(0xFF4B6975), // Warna teks angka
           ),
         ),
       ],
@@ -295,18 +303,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   String dateBooking = "", total = "", startTime = "", endTime = "";
+  int bookingId = 0;
 
-  getBooking(){
+  postBooking(){
     BookingViewmodel().booking(categoryId: widget.categoryId, bookingDate: widget.bookingDate, endTime: widget.endTime, startTime: widget.startTime, taxPercentage: "11", totalPayment: widget.totalPayment, venueId: widget.venueId).then((value) {
       if (value.code == 200){
         setState(() {
           code = value.code;
+          bookingId = value.data['id'];
           dateBooking = value.data['booking_date'];
           total = value.data['total_payment'].toString();
           startTime = value.data['start_time'];
           endTime = value.data['end_time'];
         });
       } else {
+        if (!mounted) return;
         showToast(context: context, msg: value.message);
       }
     },);
@@ -321,6 +332,31 @@ class _CheckoutPageState extends State<CheckoutPage> {
         });
       }
     });
+  }
+  
+  postCheckout({required bookingId}){
+    debugPrint("booking id nya $bookingId");
+    CheckoutViewmodel().checkout(bookingId: bookingId).then((value) {
+      if (value.code == 200 && mounted){
+        setState(() {
+          isLoading = false;
+        });
+        debugPrint("payment_url nya : ${value.data['payment_url']}");
+        // Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentWebviewPage(url: value.data['payment_url']),));
+        _launchUrl(url: value.data['payment_url']);
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        showToast(context: context, msg: value.message);
+      }
+    },);
+  }
+
+  Future<void> _launchUrl({String? url}) async {
+    if (!await launchUrl(Uri.parse(url ?? ""))) {
+      throw Exception('Could not launch $url');
+    }
   }
 }
 

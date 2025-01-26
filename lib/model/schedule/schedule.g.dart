@@ -14,10 +14,12 @@ ScheduleModel _$ScheduleModelFromJson(Map<String, dynamic> json) =>
       schedules: (json['schedules'] as List<dynamic>?)
           ?.map((e) => DataSchedule.fromJson(e as Map<String, dynamic>))
           .toList(),
+      availableSchedulesCount: json['available_schedules_count'],
     );
 
 Map<String, dynamic> _$ScheduleModelToJson(ScheduleModel instance) =>
     <String, dynamic>{
       'venue': instance.venue,
       'schedules': instance.schedules,
+      'available_schedules_count': instance.availableSchedulesCount,
     };

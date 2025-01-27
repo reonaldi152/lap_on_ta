@@ -15,6 +15,7 @@ Owner _$OwnerFromJson(Map<String, dynamic> json) => Owner(
       photoKTP: json['photo_ktp'],
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
+      storeAddress: json['store_address'],
     );
 
 Map<String, dynamic> _$OwnerToJson(Owner instance) => <String, dynamic>{
@@ -26,4 +27,5 @@ Map<String, dynamic> _$OwnerToJson(Owner instance) => <String, dynamic>{
       'photo_ktp': instance.photoKTP,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
+      'store_address': instance.storeAddress,
     };

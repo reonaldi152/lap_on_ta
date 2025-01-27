@@ -25,4 +25,7 @@ class Endpoint {
   static const String productByCategory = 'api/product/category';
   static const String categoryMarketplace = 'api/category-marketplaces';
 
+  static const String historyTransactionVenue = 'api/history-transactions';
+  static const String historyTransactionMarketplace = 'api/transaction-marketplaces';
+
 }

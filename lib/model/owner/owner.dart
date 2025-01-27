@@ -6,7 +6,7 @@ part 'owner.g.dart';
 
 @JsonSerializable()
 class Owner {
-  Owner({this.id, this.name, this.email, this.phone, this.photoProfile, this.photoKTP, this.createdAt, this.updatedAt});
+  Owner({this.id, this.name, this.email, this.phone, this.photoProfile, this.photoKTP, this.createdAt, this.updatedAt, this.storeAddress});
 
   factory Owner.fromJson(Map<String, dynamic> json) => _$OwnerFromJson(json);
 
@@ -24,6 +24,8 @@ class Owner {
   final dynamic createdAt;
   @JsonKey(name: 'updated_at')
   final dynamic updatedAt;
+  @JsonKey(name: 'store_address')
+  final dynamic storeAddress;
 
   @override
   String toString() => json.encode(this);

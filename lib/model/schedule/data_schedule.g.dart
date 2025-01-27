@@ -15,6 +15,7 @@ DataSchedule _$DataScheduleFromJson(Map<String, dynamic> json) => DataSchedule(
       is_booking: json['is_booking'],
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
+      is_past: json['is_past'],
     );
 
 Map<String, dynamic> _$DataScheduleToJson(DataSchedule instance) =>
@@ -25,6 +26,7 @@ Map<String, dynamic> _$DataScheduleToJson(DataSchedule instance) =>
       'start_time': instance.start_time,
       'end_time': instance.end_time,
       'is_booking': instance.is_booking,
+      'is_past': instance.is_past,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
     };

@@ -120,12 +120,13 @@ class _BookingPageState extends State<BookingPage> {
                   _scheduleModel!.schedules!.length,
                       (index) {
                     DataSchedule data = _scheduleModel!.schedules![index];
-                    setState(() {
-                      isSelected = selectedSchedule == data;
+                    bool isDisabled = data.is_past ?? false; // Cek apakah jadwal sudah lewat
+                    bool isSelected = selectedSchedule == data;
 
-                    });
-                    return _scheduleModel?.availableSchedulesCount == 0 ? Container() : GestureDetector(
-                      onTap: () {
+                    return GestureDetector(
+                      onTap: isDisabled
+                          ? null // Jika jadwal sudah lewat, tidak ada interaksi
+                          : () {
                         setState(() {
                           if (isSelected) {
                             selectedSchedule = null;
@@ -137,13 +138,13 @@ class _BookingPageState extends State<BookingPage> {
                         });
                       },
                       child: Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 8),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 25),
+                        margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
-                          color: isSelected
+                          color: isDisabled
+                              ? Colors.grey[300] // Berikan warna abu-abu untuk jadwal yang dinonaktifkan
+                              : isSelected
                               ? AppColor.colorPrimaryGreen
                               : AppColor.white,
                           boxShadow: [
@@ -151,8 +152,7 @@ class _BookingPageState extends State<BookingPage> {
                               color: const Color(0xff94A8BE).withOpacity(0.3),
                               spreadRadius: 0.1,
                               blurRadius: 4,
-                              offset: const Offset(
-                                  0.5, 0),
+                              offset: const Offset(0.5, 0),
                             ),
                           ],
                         ),
@@ -160,20 +160,21 @@ class _BookingPageState extends State<BookingPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   "60 Menit",
                                   style: fontTextStyle.copyWith(
                                     fontSize: 10,
-                                    color: const Color(0xFF6F737A),
+                                    color: isDisabled
+                                        ? Colors.grey
+                                        : const Color(0xFF6F737A),
                                   ),
                                 ),
                                 Text(
                                   "${data.start_time} - ${data.end_time}",
                                   style: fontTextStyle.copyWith(
-                                    color: AppColor.black,
+                                    color: isDisabled ? Colors.grey : AppColor.black,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -184,27 +185,32 @@ class _BookingPageState extends State<BookingPage> {
                                 Text(
                                   "${_scheduleModel?.venue?.price}",
                                   style: fontTextStyle.copyWith(
-                                    color: AppColor.black,
+                                    color: isDisabled ? Colors.grey : AppColor.black,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
                                 const SizedBox(width: 4),
                                 Icon(
-                                  isSelected
+                                  isDisabled
+                                      ? Icons.cancel
+                                      : isSelected
                                       ? Icons.check_circle
                                       : Icons.circle_outlined,
-                                  color: isSelected
+                                  color: isDisabled
+                                      ? Colors.grey
+                                      : isSelected
                                       ? AppColor.white
                                       : AppColor.black,
                                 ),
                               ],
-                            )
+                            ),
                           ],
                         ),
                       ),
                     );
                   },
                 ),
+
               ),
               const SizedBox(height: 36),
             ],

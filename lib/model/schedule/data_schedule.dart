@@ -6,7 +6,7 @@ part 'data_schedule.g.dart';
 
 @JsonSerializable()
 class DataSchedule {
-  DataSchedule({this.id, this.venue_id, this.day_of_week, this.start_time, this.end_time, this.is_booking, this.createdAt, this.updatedAt});
+  DataSchedule({this.id, this.venue_id, this.day_of_week, this.start_time, this.end_time, this.is_booking, this.createdAt, this.updatedAt, this.is_past});
 
   factory DataSchedule.fromJson(Map<String, dynamic> json) => _$DataScheduleFromJson(json);
 
@@ -18,6 +18,7 @@ class DataSchedule {
   final dynamic start_time;
   final dynamic end_time;
   final dynamic is_booking;
+  final dynamic is_past;
   @JsonKey(name: 'created_at')
   final dynamic createdAt;
   @JsonKey(name: 'updated_at')

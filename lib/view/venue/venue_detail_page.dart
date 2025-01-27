@@ -89,7 +89,7 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                _venue?.address ?? "No address available",
+                                _venue?.owner?.storeAddress ?? "No address available",
                                 style: fontTextStyle.copyWith(fontSize: 13),
                               ),
                             ),

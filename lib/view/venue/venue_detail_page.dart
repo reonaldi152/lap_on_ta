@@ -3,6 +3,9 @@ import 'package:flutter_lapon/config/app_color.dart';
 import 'package:flutter_lapon/model/venue/venue.dart';
 import 'package:flutter_lapon/view/booking/booking_page.dart';
 import 'package:flutter_lapon/viewmodel/venue_viewmodel.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class VenueDetailPage extends StatefulWidget {
   const VenueDetailPage({super.key, this.venueId});
@@ -13,6 +16,8 @@ class VenueDetailPage extends StatefulWidget {
 }
 
 class _VenueDetailPageState extends State<VenueDetailPage> {
+  Venue? _venue;
+
   @override
   void initState() {
     getDetailVenue();
@@ -84,7 +89,7 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                _venue?.address ?? "no address",
+                                _venue?.address ?? "No address available",
                                 style: fontTextStyle.copyWith(fontSize: 13),
                               ),
                             ),
@@ -97,84 +102,6 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
                         ),
                         const SizedBox(height: 36),
                         Text(
-                          "Jam Operasional",
-                          style: fontTextStyle.copyWith(
-                            color: AppColor.colorPrimaryGreen,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Senin - Jumat",
-                                  style: fontTextStyle.copyWith(),
-                                ),
-                                Text(
-                                  "Sabtu",
-                                  style: fontTextStyle.copyWith(),
-                                ),
-                                Text(
-                                  "Minggu",
-                                  style: fontTextStyle.copyWith(),
-                                ),
-                              ],
-                            ),
-                            const Spacer(),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "08.00- 23.00",
-                                  style: fontTextStyle.copyWith(
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Text(
-                                  "07.00- 00.00",
-                                  style: fontTextStyle.copyWith(
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                Text(
-                                  "07.00- 00.00",
-                                  style: fontTextStyle.copyWith(
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        // Text(
-                        //   "Fasilitas",
-                        //   style: fontTextStyle.copyWith(
-                        //     color: AppColor.colorPrimaryGreen,
-                        //     fontSize: 16,
-                        //     fontWeight: FontWeight.w700,
-                        //   ),
-                        // ),
-                        // const SizedBox(height: 8),
-                        // Text(
-                        //   "Cafe",
-                        //   style: fontTextStyle.copyWith(),
-                        // ),
-                        // Text(
-                        //   "Parkir",
-                        //   style: fontTextStyle.copyWith(),
-                        // ),
-                        // Text(
-                        //   "Kamar Mandi",
-                        //   style: fontTextStyle.copyWith(),
-                        // ),
-                        // Text(
-                        //   "Smoking Area",
-                        //   style: fontTextStyle.copyWith(),
-                        // ),
-                        const SizedBox(height: 24),
-                        Text(
                           "Lokasi",
                           style: fontTextStyle.copyWith(
                             color: AppColor.colorPrimaryGreen,
@@ -183,14 +110,55 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        Text(
-                          _venue?.address ?? "",
-                          style: fontTextStyle.copyWith(fontSize: 13),
+                        SizedBox(
+                          height: 300,
+                          child: _venue?.latitude != null && _venue?.longitude != null
+                              ? FlutterMap(
+                            options: MapOptions(
+                              initialCenter: LatLng(_venue?.latitude, _venue?.longitude), // Center the map over London
+                              initialZoom: 16,
+                            ),
+                            children: [
+                              TileLayer( // Display map tiles from any source
+                                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', // OSMF's Tile Server
+                                userAgentPackageName: 'com.example.app',
+                                // And many more recommended properties!
+                              ),
+                              MarkerLayer(
+                                markers: [
+                                  Marker(
+                                    point: LatLng(_venue?.latitude, _venue?.longitude),
+                                    width: 80,
+                                    height: 80,
+                                    child:  const Icon(Icons.location_pin, color: Colors.red,),
+                                  ),
+                                ],
+                              ),
+                              RichAttributionWidget( // Include a stylish prebuilt attribution widget that meets all requirments
+                                attributions: [
+                                  TextSourceAttribution(
+                                    'OpenStreetMap contributors',
+                                    onTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright')), // (external)
+                                  ),
+                                  // Also add images...
+                                ],
+                              ),
+                            ],
+                          )
+                              : Center(
+                            child: Text(
+                              "Peta tidak tersedia",
+                              style: fontTextStyle.copyWith(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 30),
                         Container(
-                          margin: EdgeInsets.symmetric(horizontal: 16),
-                          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                           decoration: BoxDecoration(
                             color: AppColor.white,
                             boxShadow: [
@@ -198,11 +166,10 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
                                 color: const Color(0xff94A8BE).withOpacity(0.3),
                                 spreadRadius: 0.4,
                                 blurRadius: 6,
-                                offset: const Offset(
-                                    0.5, 0), // changes position of shadow
+                                offset: const Offset(0.5, 0), // changes position of shadow
                               )
                             ],
-                            borderRadius: BorderRadius.circular(10)
+                            borderRadius: BorderRadius.circular(10),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -226,15 +193,24 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
                                 ],
                               ),
                               InkWell(
-                                onTap: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => BookingPage(venueId: widget.venueId),));
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => BookingPage(
+                                        venueId: widget.venueId,
+                                      ),
+                                    ),
+                                  );
                                 },
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 11, horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 11, horizontal: 16),
                                   height: 40,
                                   decoration: BoxDecoration(
-                                      color: AppColor.colorPrimaryGreen,
-                                      borderRadius: BorderRadius.circular(12)),
+                                    color: AppColor.colorPrimaryGreen,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                   child: Text(
                                     "Book Sekarang",
                                     style: fontTextStyle.copyWith(
@@ -260,8 +236,7 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
     );
   }
 
-  Venue? _venue;
-  getDetailVenue() {
+  void getDetailVenue() {
     VenueViewmodel().detailVenue(venueid: widget.venueId).then((value) {
       if (value.code == 200) {
         setState(() {

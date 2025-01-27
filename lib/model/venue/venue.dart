@@ -9,7 +9,7 @@ part 'venue.g.dart';
 
 @JsonSerializable()
 class Venue {
-  Venue({this.id, this.ownerId, this.categoryId, this.name, this.description, this.image, this.address,this.price, this.owner, this.category, this.linkMaps, this.createdAt, this.updatedAt});
+  Venue({this.id, this.ownerId, this.categoryId, this.name, this.description, this.image, this.address,this.price, this.owner, this.category, this.linkMaps, this.createdAt, this.updatedAt, this.latitude, this.longitude});
 
   factory Venue.fromJson(Map<String, dynamic> json) => _$VenueFromJson(json);
 
@@ -33,6 +33,8 @@ class Venue {
   final dynamic createdAt;
   @JsonKey(name: 'updated_at')
   final dynamic updatedAt;
+  final dynamic latitude;
+  final dynamic longitude;
 
 
   @override

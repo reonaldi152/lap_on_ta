@@ -24,6 +24,8 @@ Venue _$VenueFromJson(Map<String, dynamic> json) => Venue(
       linkMaps: json['link_maps'],
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
+      latitude: json['latitude'],
+      longitude: json['longitude'],
     );
 
 Map<String, dynamic> _$VenueToJson(Venue instance) => <String, dynamic>{
@@ -40,4 +42,6 @@ Map<String, dynamic> _$VenueToJson(Venue instance) => <String, dynamic>{
       'link_maps': instance.linkMaps,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
     };

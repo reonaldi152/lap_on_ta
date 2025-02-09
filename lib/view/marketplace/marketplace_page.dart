@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_lapon/config/app_color.dart';
 import 'package:flutter_lapon/model/category_marketplace/category_marketplace.dart';
 import 'package:flutter_lapon/model/product/product.dart';
+import 'package:flutter_lapon/view/history_transaction_marketplace/history_transaction_marketplace_page.dart';
 import 'package:flutter_lapon/view/marketplace/product_detail/product_detail_page.dart';
 import 'package:flutter_lapon/viewmodel/product_viewmodel.dart';
 
@@ -75,40 +76,45 @@ class _MarketplacePageState extends State<MarketplacePage> {
                     fontSize: 22,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColor.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xff94A8BE).withOpacity(0.3),
-                        spreadRadius: 0.1,
-                        blurRadius: 4,
-                        offset:
-                            const Offset(0.5, 0), // changes position of shadow
-                      )
-                    ],
-                    borderRadius: BorderRadius.circular(12),
+                GestureDetector(
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const HistoryTransactionMarketplacePage(),));
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColor.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xff94A8BE).withOpacity(0.3),
+                          spreadRadius: 0.1,
+                          blurRadius: 4,
+                          offset:
+                              const Offset(0.5, 0), // changes position of shadow
+                        )
+                      ],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Image.asset("assets/ic_history_market.png", width: 24),
                   ),
-                  child: Image.asset("assets/ic_history_market.png", width: 24),
                 ),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColor.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xff94A8BE).withOpacity(0.3),
-                        spreadRadius: 0.1,
-                        blurRadius: 4,
-                        offset:
-                            const Offset(0.5, 0), // changes position of shadow
-                      )
-                    ],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Image.asset("assets/ic_cart.png", width: 24),
-                ),
+                // Container(
+                //   padding: const EdgeInsets.all(12),
+                //   decoration: BoxDecoration(
+                //     color: AppColor.white,
+                //     boxShadow: [
+                //       BoxShadow(
+                //         color: const Color(0xff94A8BE).withOpacity(0.3),
+                //         spreadRadius: 0.1,
+                //         blurRadius: 4,
+                //         offset:
+                //             const Offset(0.5, 0), // changes position of shadow
+                //       )
+                //     ],
+                //     borderRadius: BorderRadius.circular(12),
+                //   ),
+                //   child: Image.asset("assets/ic_cart.png", width: 24),
+                // ),
               ],
             ),
             const SizedBox(height: 24),

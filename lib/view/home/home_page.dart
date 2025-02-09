@@ -81,6 +81,7 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 24),
             CarouselSlider(
+
               items: _listBanner
                   .map((e) => GestureDetector(
                 onTap: () {},
@@ -104,6 +105,7 @@ class _HomePageState extends State<HomePage> {
               options: CarouselOptions(
                   initialPage: (_bannerList.length / 2).floor(),
                   aspectRatio: 2.4,
+                  autoPlay: true,
                   enableInfiniteScroll: false,
                   onPageChanged: (index, reason) {
                     setState(() {

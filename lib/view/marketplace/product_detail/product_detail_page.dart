@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_lapon/model/product/product.dart';
+import 'package:flutter_lapon/view/cart/cart_page.dart';
 import 'package:flutter_lapon/viewmodel/product_viewmodel.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -222,6 +223,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               InkWell(
                 onTap: (){
                   showPaymentConfirmationDialog(context);
+                  // Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 16),

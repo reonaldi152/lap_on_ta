@@ -1,50 +1,45 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'transaction.dart';
+part of 'transaction_marketplace.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Transaction _$TransactionFromJson(Map<String, dynamic> json) => Transaction(
+TransactionMarketplace _$TransactionMarketplaceFromJson(
+        Map<String, dynamic> json) =>
+    TransactionMarketplace(
       id: json['id'],
       transactionId: json['transaction_id'],
       userId: json['user_id'],
-      venueId: json['venue_id'],
-      bookingId: json['booking_id'],
       total: json['total'],
       status: json['status'],
       paymentUrl: json['payment_url'],
-      taxPercentage: json['tax_percentage'],
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],
       deletedAt: json['deleted_at'],
-      venue: json['venue'] == null
+      product: json['product'] == null
           ? null
-          : Venue.fromJson(json['venue'] as Map<String, dynamic>),
-      booking: json['booking'] == null
-          ? null
-          : Booking.fromJson(json['booking'] as Map<String, dynamic>),
+          : Product.fromJson(json['product'] as Map<String, dynamic>),
       user: json['user'] == null
           ? null
           : Users.fromJson(json['user'] as Map<String, dynamic>),
+      productId: json['product_id'],
     );
 
-Map<String, dynamic> _$TransactionToJson(Transaction instance) =>
+Map<String, dynamic> _$TransactionMarketplaceToJson(
+        TransactionMarketplace instance) =>
     <String, dynamic>{
       'id': instance.id,
       'transaction_id': instance.transactionId,
       'user_id': instance.userId,
-      'venue_id': instance.venueId,
-      'booking_id': instance.bookingId,
+      'product_id': instance.productId,
       'total': instance.total,
       'status': instance.status,
       'payment_url': instance.paymentUrl,
-      'tax_percentage': instance.taxPercentage,
       'created_at': instance.createdAt,
       'updated_at': instance.updatedAt,
       'deleted_at': instance.deletedAt,
-      'venue': instance.venue,
-      'booking': instance.booking,
+      'product': instance.product,
       'user': instance.user,
     };

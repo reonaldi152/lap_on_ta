@@ -2,22 +2,23 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_lapon/config/app_color.dart';
-import 'package:flutter_lapon/model/transaction/transaction.dart';
+import 'package:flutter_lapon/model/transaction_marketplace/transaction_marketplace.dart';
 import 'package:flutter_lapon/viewmodel/transaction_viewmodel.dart';
 
 import '../../config/pref.dart';
 
-class HistoryTransactionPage extends StatefulWidget {
-  const HistoryTransactionPage({super.key});
+class HistoryTransactionMarketplacePage extends StatefulWidget {
+  const HistoryTransactionMarketplacePage({super.key});
 
   @override
-  State<HistoryTransactionPage> createState() =>
-      _HistoryTransactionPageState();
+  State<HistoryTransactionMarketplacePage> createState() =>
+      _HistoryTransactionMarketplacePageState();
 }
 
-class _HistoryTransactionPageState extends State<HistoryTransactionPage> {
-  String _selectedStatus = "pending";
-  List<Transaction> _transactions = [];
+class _HistoryTransactionMarketplacePageState
+    extends State<HistoryTransactionMarketplacePage> {
+  List<TransactionMarketplace> _transactions = [];
+  String _selectedStatus = "success";
 
   final List<String> _statuses = ["success", "pending", "failed"];
 
@@ -32,12 +33,12 @@ class _HistoryTransactionPageState extends State<HistoryTransactionPage> {
 
     if (token != null) {
       TransactionViewmodel()
-          .transactionVenue(status: _selectedStatus)
+          .transactionMarketplace()
           .then((response) {
         if (response.code == 200) {
           setState(() {
             _transactions = (response.data as List)
-                .map((e) => Transaction.fromJson(e))
+                .map((e) => TransactionMarketplace.fromJson(e))
                 .toList();
           });
         }
@@ -51,8 +52,8 @@ class _HistoryTransactionPageState extends State<HistoryTransactionPage> {
       backgroundColor: AppColor.colorPrimaryGreen,
       appBar: AppBar(
         backgroundColor: AppColor.colorPrimaryGreen,
-        title: Text(
-          "Riwayat Transaksi",
+        title: const Text(
+          "Riwayat Transaksi Marketplace",
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,
@@ -72,41 +73,6 @@ class _HistoryTransactionPageState extends State<HistoryTransactionPage> {
         child: Column(
           children: [
             const SizedBox(height: 24),
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 16),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            //     children: List.generate(
-            //       _statuses.length,
-            //           (index) {
-            //         final String status = _statuses[index];
-            //         bool isSelected = _selectedStatus == status;
-            //
-            //         return GestureDetector(
-            //           onTap: () {
-            //             setState(() {
-            //               _selectedStatus = status;
-            //               _fetchTransactions();
-            //             });
-            //           },
-            //           child: Text(
-            //             status.toUpperCase(),
-            //             style: TextStyle(
-            //               fontWeight: isSelected
-            //                   ? FontWeight.bold
-            //                   : FontWeight.normal,
-            //               color: isSelected
-            //                   ? AppColor.colorPrimaryGreen
-            //                   : Colors.grey,
-            //               fontSize: 14,
-            //             ),
-            //           ),
-            //         );
-            //       },
-            //     ),
-            //   ),
-            // ),
-            const SizedBox(height: 16),
             Expanded(
               child: _transactions.isEmpty
                   ? const Center(
@@ -130,7 +96,7 @@ class _HistoryTransactionPageState extends State<HistoryTransactionPage> {
     );
   }
 
-  Widget _buildTransactionCard(Transaction transaction) {
+  Widget _buildTransactionCard(TransactionMarketplace transaction) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
@@ -144,7 +110,7 @@ class _HistoryTransactionPageState extends State<HistoryTransactionPage> {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
-                "https://laponid.com/storage/${transaction.venue?.image}",
+                "https://laponid.com/storage/${transaction.product?.image}",
                 width: 50,
                 height: 50,
                 fit: BoxFit.cover,
@@ -162,7 +128,7 @@ class _HistoryTransactionPageState extends State<HistoryTransactionPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    transaction.venue?.name ?? "Unknown Venue",
+                    transaction.product?.nameProduct ?? "Unknown Product",
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
@@ -170,25 +136,27 @@ class _HistoryTransactionPageState extends State<HistoryTransactionPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Booking ID: ${transaction.booking?.bookingId ?? "-"}",
+                    "Transaction ID: ${transaction.transactionId ?? "-"}",
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "${transaction.booking?.bookingDate} ${transaction.booking?.startTime} - ${transaction.booking?.endTime}",
+                    "Total: Rp ${transaction.total ?? "0"}",
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 ],
               ),
             ),
             Text(
-              transaction.total != null
-                  ? "Rp ${transaction.total}"
-                  : "Rp 0",
-              style: const TextStyle(
-                fontSize: 14,
+              transaction.status.toUpperCase(),
+              style: TextStyle(
+                fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: AppColor.colorPrimaryGreen,
+                color: transaction.status == "success"
+                    ? Colors.green
+                    : transaction.status == "failed"
+                    ? Colors.red
+                    : Colors.orange,
               ),
             ),
           ],

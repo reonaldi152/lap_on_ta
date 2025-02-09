@@ -16,7 +16,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-
   @override
   void initState() {
     getUserProfile();
@@ -29,10 +28,8 @@ class _ProfilePageState extends State<ProfilePage> {
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const BasePage()),
-            (Route<dynamic> route) => false);
-    showToast(
-        context: context,
-        msg: "Logout Berhasil");
+        (Route<dynamic> route) => false);
+    showToast(context: context, msg: "Logout Berhasil");
   }
 
   @override
@@ -52,172 +49,194 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-      body: _users == null ? const Center(child: CircularProgressIndicator(color: AppColor.colorPrimaryGreen,)) : Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              Container(
-                margin: EdgeInsets.only(bottom: 80),
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(16),
-                      bottomRight: Radius.circular(16)),
-                  // gradient: LinearGradient(
-                  //   colors: [Color(0xffA78A50), Color(0xff8C6D42)],
-                  // ),
-                  color: AppColor.colorPrimaryGreen,
-                ),
-                width: double.infinity,
-                height: 148,
-              ),
-              Image.asset(
-                "assets/bg_profile.png",
-                width: 420,
-              ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 20),
-                  padding: const EdgeInsets.only(
-                      left: 16, right: 16, top: 0, bottom: 12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: AppColor.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0xff94A8BE).withOpacity(0.3),
-                        spreadRadius: 0.0,
-                        blurRadius: 8,
-                        offset: Offset(0.2, 0.2), // changes position of shadow
-                      )
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const UbahProfilePage(),));
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+      body: _users == null
+          ? const Center(
+              child: CircularProgressIndicator(
+              color: AppColor.colorPrimaryGreen,
+            ))
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Stack(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(bottom: 80),
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(16),
+                            bottomRight: Radius.circular(16)),
+                        // gradient: LinearGradient(
+                        //   colors: [Color(0xffA78A50), Color(0xff8C6D42)],
+                        // ),
+                        color: AppColor.colorPrimaryGreen,
+                      ),
+                      width: double.infinity,
+                      height: 148,
+                    ),
+                    Image.asset(
+                      "assets/bg_profile.png",
+                      width: 420,
+                    ),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.only(
+                            left: 16, right: 16, top: 0, bottom: 12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: AppColor.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color(0xff94A8BE).withOpacity(0.3),
+                              spreadRadius: 0.0,
+                              blurRadius: 8,
+                              offset: Offset(
+                                  0.2, 0.2), // changes position of shadow
+                            )
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              "Ubah",
-                              style: fontTextStyle.copyWith(
-                                fontSize: 14,
-                                color: AppColor.colorPrimaryGreen,
-                                fontWeight: FontWeight.w600,
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const UbahProfilePage(),
+                                    ));
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    "Ubah",
+                                    style: fontTextStyle.copyWith(
+                                      fontSize: 14,
+                                      color: AppColor.colorPrimaryGreen,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  // SizedBox(width: 4),
+                                  // Image.asset("assets/ic_pen.png", width: 14)
+                                ],
                               ),
                             ),
-                            // SizedBox(width: 4),
-                            // Image.asset("assets/ic_pen.png", width: 14)
+                            Text(
+                              _users?.name ?? "",
+                              style: fontTextStyle.copyWith(
+                                fontSize: 16,
+                                color: const Color(0xFF252A31),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Text(
+                                _users?.email ?? "",
+                                style: fontTextStyle.copyWith(
+                                    color: const Color(0xFF4F5E71)),
+                              ),
+                            ),
+                            Text(
+                              _users?.phone ?? "",
+                              style: fontTextStyle.copyWith(
+                                  color: const Color(0xFF4F5E71)),
+                            )
                           ],
                         ),
                       ),
-                      Text(
-                        _users?.name ?? "",
-                        style: fontTextStyle.copyWith(
-                          fontSize: 16,
-                          color: const Color(0xFF252A31),
-                          fontWeight: FontWeight.w700,
-                        ),
+                    ),
+                    Positioned(
+                      top: 60,
+                      left: 40,
+                      child: Image.asset(
+                        "assets/ic_default_profile.png",
+                        width: 80,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Text(
-                          _users?.email ?? "",
-                          style:
-                          fontTextStyle.copyWith(color: const Color(0xFF4F5E71)),
-                        ),
-                      ),
-                      Text(
-                        _users?.phone ?? "",
-                        style:
-                        fontTextStyle.copyWith(color: const Color(0xFF4F5E71)),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              Positioned(top: 60, left: 40,child: Image.asset("assets/ic_default_profile.png", width: 80,),),
-              // Positioned(
-              //   top: 45,
-              //   left: 40,
-              //   child: ClipOval(
-              //       child: Container(
-              //         decoration: BoxDecoration(
-              //             color: AppColor.black,
-              //             borderRadius: BorderRadius.circular(50)
-              //         ),
-              //         child: Image.asset(
-              //           'assets/ic_profile.png',
-              //           width: 75,
-              //           fit: BoxFit.cover,
-              //         ),
-              //       )
-              //   ),
-              // )
-            ],
-          ),
-          Container(
-            margin: const EdgeInsets.only(left: 20, right: 20, top: 26),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColor.white,
-              border: Border.all(color: const Color(0xFFE8EDF1)),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Column(
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const RequestCodePasswordPage()));
-                  },
-                  child: Row(
-                    children: [
-                      // Image.asset("assets/ic_privacy_policy.png", width: 16),
-                      SizedBox(width: 8),
-                      Text(
-                        "Reset Password",
-                        style: fontTextStyle.copyWith(
-                            color: AppColor.black,
-                            fontWeight: FontWeight.w600),
-                      )
-                    ],
-                  ),
+                    ),
+                    // Positioned(
+                    //   top: 45,
+                    //   left: 40,
+                    //   child: ClipOval(
+                    //       child: Container(
+                    //         decoration: BoxDecoration(
+                    //             color: AppColor.black,
+                    //             borderRadius: BorderRadius.circular(50)
+                    //         ),
+                    //         child: Image.asset(
+                    //           'assets/ic_profile.png',
+                    //           width: 75,
+                    //           fit: BoxFit.cover,
+                    //         ),
+                    //       )
+                    //   ),
+                    // )
+                  ],
                 ),
                 Container(
-                  margin: const EdgeInsets.symmetric(vertical: 16),
-                  height: 1,
-                  width: double.infinity,
-                  color: const Color(0xFFE8EDF1),
-                ),
-                InkWell(
-                  onTap: () {
-                    logoutConfirm();
-                  },
-                  child: Row(
+                  margin: const EdgeInsets.only(left: 20, right: 20, top: 26),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColor.white,
+                    border: Border.all(color: const Color(0xFFE8EDF1)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
                     children: [
-                      // Image.asset("assets/ic_logout.png", width: 16),
-                      const SizedBox(width: 8),
-                      Text(
-                        "Keluar",
-                        style: fontTextStyle.copyWith(
-                            color: AppColor.black,
-                            fontWeight: FontWeight.w600),
-                      )
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const RequestCodePasswordPage()));
+                        },
+                        child: Row(
+                          children: [
+                            // Image.asset("assets/ic_privacy_policy.png", width: 16),
+                            SizedBox(width: 8),
+                            Text(
+                              "Reset Password",
+                              style: fontTextStyle.copyWith(
+                                  color: AppColor.black,
+                                  fontWeight: FontWeight.w600),
+                            )
+                          ],
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 16),
+                        height: 1,
+                        width: double.infinity,
+                        color: const Color(0xFFE8EDF1),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          logoutConfirm();
+                        },
+                        child: Row(
+                          children: [
+                            // Image.asset("assets/ic_logout.png", width: 16),
+                            const SizedBox(width: 8),
+                            Text(
+                              "Keluar",
+                              style: fontTextStyle.copyWith(
+                                  color: AppColor.black,
+                                  fontWeight: FontWeight.w600),
+                            )
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                ),
+                )
               ],
             ),
-          )
-        ],
-      ),
     );
   }
 
@@ -247,7 +266,8 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 14),
             Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                 decoration: const BoxDecoration(
                     border: Border.symmetric(
                         horizontal: BorderSide(color: Color(0xFFE8EDF1)))),
@@ -289,15 +309,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   if (!mounted) return;
                   Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(builder: (_) => const BasePage()),
-                          (Route<dynamic> route) => false);
-                  showToast(
-                      context: context,
-                      msg: "Logout Berhasil");
-
+                      (Route<dynamic> route) => false);
+                  showToast(context: context, msg: "Logout Berhasil");
                 } else {
-                  showToast(
-                      context: context,
-                      msg: "Terjadi Kesalahan");
+                  showToast(context: context, msg: "Terjadi Kesalahan");
                 }
               });
             },
@@ -320,18 +335,18 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-Users? _users;
-getUserProfile() async {
-  String? token = await Session().getUserToken();
+  Users? _users;
+  getUserProfile() async {
+    String? token = await Session().getUserToken();
 
-  if (token != null) {
-    AuthViewmodel().userDetail().then((value) {
-      if (value.code == 200) {
-        setState(() {
-          _users = Users.fromJson(value.data);
-        });
-      }
-    });
+    if (token != null) {
+      AuthViewmodel().userDetail().then((value) {
+        if (value.code == 200) {
+          setState(() {
+            _users = Users.fromJson(value.data);
+          });
+        }
+      });
+    }
   }
-}
 }

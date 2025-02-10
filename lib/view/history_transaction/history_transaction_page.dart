@@ -3,7 +3,9 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter_lapon/config/app_color.dart';
 import 'package:flutter_lapon/model/transaction/transaction.dart';
+import 'package:flutter_lapon/viewmodel/refund_viewmodel.dart';
 import 'package:flutter_lapon/viewmodel/transaction_viewmodel.dart';
+import 'package:flutter_lapon/widget/custom_toast.dart';
 
 import '../../config/pref.dart';
 
@@ -11,15 +13,12 @@ class HistoryTransactionPage extends StatefulWidget {
   const HistoryTransactionPage({super.key});
 
   @override
-  State<HistoryTransactionPage> createState() =>
-      _HistoryTransactionPageState();
+  State<HistoryTransactionPage> createState() => _HistoryTransactionPageState();
 }
 
 class _HistoryTransactionPageState extends State<HistoryTransactionPage> {
   String _selectedStatus = "pending";
   List<Transaction> _transactions = [];
-
-  final List<String> _statuses = ["success", "pending", "failed"];
 
   @override
   void initState() {
@@ -45,13 +44,79 @@ class _HistoryTransactionPageState extends State<HistoryTransactionPage> {
     }
   }
 
+  void _handleRefund(BuildContext context, String bookingId) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: const Text(
+            "Konfirmasi Refund",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: const Text(
+            "Pembatalan yang terjadi akan dikenakan biaya potongan transaksi venue sebesar 20%. Apakah Anda yakin ingin melanjutkan?",
+            style: TextStyle(fontSize: 14),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+              child: const Text(
+                "Batal",
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                RefundViewmodel().refund(bookingId: bookingId).then((value) {
+                  if (value.code == 201) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: const Text("Refund berhasil diajukan."),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                      Navigator.of(context).pop(); // Tutup dialog
+
+                    }
+                    _fetchTransactions(); // Refresh transaksi
+                  } else {
+                    if (mounted) {
+                      showToast(context: context, msg: value.message);
+
+                    }
+                  }
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColor.colorPrimaryGreen,
+              ),
+              child: const Text(
+                "Konfirmasi",
+                style: TextStyle(color: AppColor.white),
+              ),
+            ),
+
+
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.colorPrimaryGreen,
       appBar: AppBar(
         backgroundColor: AppColor.colorPrimaryGreen,
-        title: Text(
+        title: const Text(
           "Riwayat Transaksi",
           style: TextStyle(
             color: Colors.white,
@@ -71,41 +136,6 @@ class _HistoryTransactionPageState extends State<HistoryTransactionPage> {
         ),
         child: Column(
           children: [
-            const SizedBox(height: 24),
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 16),
-            //   child: Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            //     children: List.generate(
-            //       _statuses.length,
-            //           (index) {
-            //         final String status = _statuses[index];
-            //         bool isSelected = _selectedStatus == status;
-            //
-            //         return GestureDetector(
-            //           onTap: () {
-            //             setState(() {
-            //               _selectedStatus = status;
-            //               _fetchTransactions();
-            //             });
-            //           },
-            //           child: Text(
-            //             status.toUpperCase(),
-            //             style: TextStyle(
-            //               fontWeight: isSelected
-            //                   ? FontWeight.bold
-            //                   : FontWeight.normal,
-            //               color: isSelected
-            //                   ? AppColor.colorPrimaryGreen
-            //                   : Colors.grey,
-            //               fontSize: 14,
-            //             ),
-            //           ),
-            //         );
-            //       },
-            //     ),
-            //   ),
-            // ),
             const SizedBox(height: 16),
             Expanded(
               child: _transactions.isEmpty
@@ -120,7 +150,7 @@ class _HistoryTransactionPageState extends State<HistoryTransactionPage> {
                 itemCount: _transactions.length,
                 itemBuilder: (context, index) {
                   final transaction = _transactions[index];
-                  return _buildTransactionCard(transaction);
+                  return _buildTransactionCard(context, transaction);
                 },
               ),
             ),
@@ -130,7 +160,7 @@ class _HistoryTransactionPageState extends State<HistoryTransactionPage> {
     );
   }
 
-  Widget _buildTransactionCard(Transaction transaction) {
+  Widget _buildTransactionCard(BuildContext context, Transaction transaction) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
@@ -140,6 +170,7 @@ class _HistoryTransactionPageState extends State<HistoryTransactionPage> {
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
@@ -181,15 +212,35 @@ class _HistoryTransactionPageState extends State<HistoryTransactionPage> {
                 ],
               ),
             ),
-            Text(
-              transaction.total != null
-                  ? "Rp ${transaction.total}"
-                  : "Rp 0",
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: AppColor.colorPrimaryGreen,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  transaction.total != null
+                      ? "Rp ${transaction.total}"
+                      : "Rp 0",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColor.colorPrimaryGreen,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    _handleRefund(context, transaction.booking?.id.toString() ?? "");
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8, horizontal: 12),
+                  ),
+                  child: const Text(
+                    "Refund",
+                    style: TextStyle(fontSize: 12, color: Colors.white),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

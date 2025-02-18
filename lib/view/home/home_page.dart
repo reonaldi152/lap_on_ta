@@ -184,6 +184,7 @@ class _HomePageState extends State<HomePage> {
                           MaterialPageRoute(
                             builder: (context) => VenueDetailPage(
                               venueId: _listVenue[index].id,
+                              // venue: _listVenue[index],
                             ),
                           ));
                     },

@@ -7,6 +7,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../model/venue/field.dart';
+
 class VenueDetailPage extends StatefulWidget {
   const VenueDetailPage({super.key, this.venueId});
   final dynamic venueId;
@@ -17,6 +19,7 @@ class VenueDetailPage extends StatefulWidget {
 
 class _VenueDetailPageState extends State<VenueDetailPage> {
   Venue? _venue;
+  Field? _selectedField;
 
   @override
   void initState() {
@@ -29,9 +32,9 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
     return Scaffold(
       backgroundColor: AppColor.white,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "Venue Detail",
-          style: fontTextStyle.copyWith(
+          style: TextStyle(
               color: AppColor.colorPrimaryGreen, fontSize: 18, fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
@@ -47,190 +50,234 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 36),
-                  child: Image.network(
-                    "https://laponid.com/storage/${_venue?.image}",
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    errorBuilder:
-                        (context, error, stackTrace) =>
-                    const Center(child: Text("Can't Load Image"),),
+            Image.network(
+              "https://laponid.com/storage/${_venue?.image}",
+              fit: BoxFit.cover,
+              width: double.infinity,
+              errorBuilder: (context, error, stackTrace) =>
+              const Center(child: Text("Can't Load Image")),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _venue?.name ?? "",
+                    style: const TextStyle(
+                      color: AppColor.colorPrimaryGreen,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 26),
-                  width: double.infinity,
-                  margin: const EdgeInsets.only(top: 300),
-                  decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(30),
-                          topRight: Radius.circular(30)),
-                      color: AppColor.white),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 26),
-                        Text(
-                          _venue?.name ?? "",
-                          style: fontTextStyle.copyWith(
-                            color: AppColor.colorPrimaryGreen,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(Icons.location_pin),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                _venue?.owner?.storeAddress ?? "No address available",
-                                style: fontTextStyle.copyWith(fontSize: 13),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 32),
-                        Text(
-                          _venue?.description ?? "",
-                          style: fontTextStyle.copyWith(fontSize: 12),
-                        ),
-                        const SizedBox(height: 36),
-                        Text(
-                          "Lokasi",
-                          style: fontTextStyle.copyWith(
-                            color: AppColor.colorPrimaryGreen,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        SizedBox(
-                          height: 300,
-                          child: _venue?.latitude != null && _venue?.longitude != null
-                              ? FlutterMap(
-                            options: MapOptions(
-                              initialCenter: LatLng(_venue?.latitude, _venue?.longitude), // Center the map over London
-                              initialZoom: 16,
-                            ),
-                            children: [
-                              TileLayer( // Display map tiles from any source
-                                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', // OSMF's Tile Server
-                                userAgentPackageName: 'com.example.app',
-                                // And many more recommended properties!
-                              ),
-                              MarkerLayer(
-                                markers: [
-                                  Marker(
-                                    point: LatLng(_venue?.latitude, _venue?.longitude),
-                                    width: 80,
-                                    height: 80,
-                                    child:  const Icon(Icons.location_pin, color: Colors.red,),
-                                  ),
-                                ],
-                              ),
-                              RichAttributionWidget( // Include a stylish prebuilt attribution widget that meets all requirments
-                                attributions: [
-                                  TextSourceAttribution(
-                                    'OpenStreetMap contributors',
-                                    onTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright')), // (external)
-                                  ),
-                                  // Also add images...
-                                ],
-                              ),
-                            ],
-                          )
-                              : Center(
-                            child: Text(
-                              "Peta tidak tersedia",
-                              style: fontTextStyle.copyWith(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 30),
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 16),
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                          decoration: BoxDecoration(
-                            color: AppColor.white,
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xff94A8BE).withOpacity(0.3),
-                                spreadRadius: 0.4,
-                                blurRadius: 6,
-                                offset: const Offset(0.5, 0), // changes position of shadow
-                              )
-                            ],
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Mulai dari",
-                                    style: fontTextStyle.copyWith(
-                                      color: const Color(0xFF121212),
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  Text(
-                                    "${_venue?.price}",
-                                    style: fontTextStyle.copyWith(
-                                        color: const Color(0xFF121212),
-                                        fontWeight: FontWeight.w700),
-                                  ),
-                                ],
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => BookingPage(
-                                        venueId: widget.venueId,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 11, horizontal: 16),
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: AppColor.colorPrimaryGreen,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    "Book Sekarang",
-                                    style: fontTextStyle.copyWith(
-                                      color: AppColor.white,
-                                      fontWeight: FontWeight.w700,
+                  const SizedBox(height: 8),
+                  Text(
+                    _venue?.description ?? "",
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    "Lapangan yang tersedia",
+                    style: TextStyle(
+                      color: AppColor.colorPrimaryGreen,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _venue?.field != null && _venue!.field!.isNotEmpty
+                      ? Column(
+                    children: _venue!.field!.map((field) {
+                      bool isSelected = _selectedField == field;
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedField = field;
+                          });
+                        },
+                        child: Card(
+                          color: isSelected ? AppColor.colorPrimaryGreen.withOpacity(0.3) : Colors.white,
+                          elevation: 3,
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Row(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    "https://laponid.com/storage/${field.image}",
+                                    width: 70,
+                                    height: 70,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) => Container(
+                                      width: 70,
+                                      height: 70,
+                                      color: Colors.grey[200],
+                                      child: const Icon(Icons.image, color: Colors.grey),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        field.name ?? "Unknown Field",
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "Rp ${field.price}",
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColor.colorPrimaryGreen,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 30),
+                      );
+                    }).toList(),
+                  )
+                      : const Center(
+                    child: Text("Tidak ada lapangan tersedia"),
+                  ),
+                  const SizedBox(height: 36),
+                  Text(
+                    "Lokasi",
+                    style: fontTextStyle.copyWith(
+                      color: AppColor.colorPrimaryGreen,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 300,
+                    child: _venue?.latitude != null && _venue?.longitude != null
+                        ? FlutterMap(
+                      options: MapOptions(
+                        initialCenter: LatLng(_venue?.latitude, _venue?.longitude), // Center the map over London
+                        initialZoom: 16,
+                      ),
+                      children: [
+                        TileLayer( // Display map tiles from any source
+                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', // OSMF's Tile Server
+                          userAgentPackageName: 'com.example.app',
+                          // And many more recommended properties!
+                        ),
+                        MarkerLayer(
+                          markers: [
+                            Marker(
+                              point: LatLng(_venue?.latitude, _venue?.longitude),
+                              width: 80,
+                              height: 80,
+                              child:  const Icon(Icons.location_pin, color: Colors.red,),
+                            ),
+                          ],
+                        ),
+                        RichAttributionWidget( // Include a stylish prebuilt attribution widget that meets all requirments
+                          attributions: [
+                            TextSourceAttribution(
+                              'OpenStreetMap contributors',
+                              onTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright')), // (external)
+                            ),
+                            // Also add images...
+                          ],
+                        ),
                       ],
+                    )
+                        : Center(
+                      child: Text(
+                        "Peta tidak tersedia",
+                        style: fontTextStyle.copyWith(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        color: AppColor.white,
+        height: 80,
+        width: double.infinity,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+          decoration: BoxDecoration(
+              color: AppColor.white,
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xff94A8BE).withOpacity(0.3),
+                  spreadRadius: 0.4,
+                  blurRadius: 6,
+                  offset: const Offset(0.5, 0),
+                )
+              ],
+              borderRadius: BorderRadius.circular(10)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Harga : Rp ${_selectedField?.price ?? "-"}",
+                    style: const TextStyle(
+                        color: Color(0xFF121212),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18),
+                  ),
+                ],
+              ),
+              InkWell(
+                onTap: _selectedField != null
+                    ? () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BookingPage(
+                        venueId: widget.venueId,
+                        field: _selectedField,
+                      ),
+                    ),
+                  );
+                }
+                    : null,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 16),
+                  height: 40,
+                  decoration: BoxDecoration(
+                      color: _selectedField != null ? AppColor.colorPrimaryGreen : Colors.grey,
+                      borderRadius: BorderRadius.circular(12)),
+                  child: const Text(
+                    "Book Sekarang",
+                    style: TextStyle(
+                      color: AppColor.white,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -31,4 +31,16 @@ class TransactionViewmodel {
     Resp data = Resp.fromJson(resp);
     return data;
   }
+
+  Future<Resp> detailTransactionMarketplace({transactionId}) async {
+    String? token = await Session().getUserToken();
+
+    var header = <String, dynamic>{};
+    header[HttpHeaders.authorizationHeader] = 'Bearer $token';
+
+    var resp = await Network.getApiWithHeaders(
+        "${Endpoint.historyTransactionMarketplace}/$transactionId", header);
+    Resp data = Resp.fromJson(resp);
+    return data;
+  }
 }

@@ -25,6 +25,7 @@ TransactionMarketplace _$TransactionMarketplaceFromJson(
           ? null
           : Users.fromJson(json['user'] as Map<String, dynamic>),
       productId: json['product_id'],
+      shipping_status: json['shipping_status'],
     );
 
 Map<String, dynamic> _$TransactionMarketplaceToJson(
@@ -42,4 +43,5 @@ Map<String, dynamic> _$TransactionMarketplaceToJson(
       'deleted_at': instance.deletedAt,
       'product': instance.product,
       'user': instance.user,
+      'shipping_status': instance.shipping_status,
     };

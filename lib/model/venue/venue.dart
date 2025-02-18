@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_lapon/model/owner/owner.dart';
+import 'package:flutter_lapon/model/venue/field.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../category/category.dart';
@@ -9,7 +10,7 @@ part 'venue.g.dart';
 
 @JsonSerializable()
 class Venue {
-  Venue({this.id, this.ownerId, this.categoryId, this.name, this.description, this.image, this.address,this.price, this.owner, this.category, this.linkMaps, this.createdAt, this.updatedAt, this.latitude, this.longitude});
+  Venue({this.id, this.ownerId, this.categoryId, this.name, this.description, this.image, this.address,this.price, this.owner, this.category, this.linkMaps, this.createdAt, this.updatedAt, this.latitude, this.longitude,this.field});
 
   factory Venue.fromJson(Map<String, dynamic> json) => _$VenueFromJson(json);
 
@@ -35,6 +36,7 @@ class Venue {
   final dynamic updatedAt;
   final dynamic latitude;
   final dynamic longitude;
+  final List<Field>? field;
 
 
   @override

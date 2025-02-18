@@ -26,6 +26,9 @@ Venue _$VenueFromJson(Map<String, dynamic> json) => Venue(
       updatedAt: json['updated_at'],
       latitude: json['latitude'],
       longitude: json['longitude'],
+      field: (json['field'] as List<dynamic>?)
+          ?.map((e) => Field.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$VenueToJson(Venue instance) => <String, dynamic>{
@@ -44,4 +47,5 @@ Map<String, dynamic> _$VenueToJson(Venue instance) => <String, dynamic>{
       'updated_at': instance.updatedAt,
       'latitude': instance.latitude,
       'longitude': instance.longitude,
+      'field': instance.field,
     };

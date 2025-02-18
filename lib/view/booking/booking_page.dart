@@ -6,9 +6,12 @@ import 'package:flutter_lapon/model/schedule/schedule.dart';
 import 'package:flutter_lapon/view/checkout/checkout_page.dart';
 import 'package:flutter_lapon/viewmodel/venue_viewmodel.dart';
 
+import '../../model/venue/field.dart';
+
 class BookingPage extends StatefulWidget {
-  const BookingPage({super.key, this.venueId});
+  const BookingPage({super.key, this.venueId, this.field});
   final dynamic venueId;
+  final Field? field;
 
   @override
   State<BookingPage> createState() => _BookingPageState();
@@ -133,7 +136,7 @@ class _BookingPageState extends State<BookingPage> {
                             totalPrice = 0.0;
                           } else {
                             selectedSchedule = data;
-                            totalPrice = double.parse(_scheduleModel!.venue!.price!);
+                            totalPrice = double.parse(widget.field?.price);
                           }
                         });
                       },
@@ -259,13 +262,15 @@ class _BookingPageState extends State<BookingPage> {
               ),
               InkWell(
                 onTap: () {
-                  if (selectedSchedule != null) {
+                  // debugPrint(widget.fieldId.toString());
+                  if (selectedSchedule != null && widget.field != null && widget.venueId != null) {
                     String formattedStartTime = selectedSchedule!.start_time.substring(0, 5);
                     String formattedEndTime = selectedSchedule!.end_time.substring(0, 5);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => CheckoutPage(
+                          field: widget.field,
                           venueId: widget.venueId,
                           bookingDate: "${_dateTime.year.toString().padLeft(4, '0')}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}",
                           startTime: formattedStartTime,

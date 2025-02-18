@@ -10,7 +10,7 @@ part 'transaction_marketplace.g.dart';
 
 @JsonSerializable()
 class TransactionMarketplace {
-  TransactionMarketplace({this.id, this.transactionId, this.userId,this.total, this.status, this.paymentUrl, this.createdAt, this.updatedAt, this.deletedAt, this.product, this.user, this.productId});
+  TransactionMarketplace({this.id, this.transactionId, this.userId,this.total, this.status, this.paymentUrl, this.createdAt, this.updatedAt, this.deletedAt, this.product, this.user, this.productId,this.shipping_status});
 
   factory TransactionMarketplace.fromJson(Map<String, dynamic> json) => _$TransactionMarketplaceFromJson(json);
 
@@ -35,6 +35,7 @@ class TransactionMarketplace {
   final dynamic deletedAt;
   final Product? product;
   final Users? user;
+  final dynamic shipping_status;
 
   @override
   String toString() => json.encode(this);

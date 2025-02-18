@@ -1,6 +1,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:flutter_lapon/model/venue/field.dart';
 import 'package:flutter_lapon/view/payment/payment_webview_page.dart';
 import 'package:flutter_lapon/viewmodel/booking_viewmodel.dart';
 import 'package:flutter_lapon/viewmodel/checkout_viewmodel.dart';
@@ -12,7 +13,7 @@ import '../../model/venue/venue.dart';
 import '../../viewmodel/venue_viewmodel.dart';
 
 class CheckoutPage extends StatefulWidget {
-  const CheckoutPage({super.key, this.venueId, this.categoryId, this.bookingDate, this.startTime, this.endTime, this.totalPayment, this.idBooking});
+  const CheckoutPage({super.key, this.venueId, this.categoryId, this.bookingDate, this.startTime, this.endTime, this.totalPayment, this.idBooking, this.field});
   final dynamic venueId;
   final dynamic categoryId;
   final dynamic bookingDate;
@@ -20,6 +21,8 @@ class CheckoutPage extends StatefulWidget {
   final dynamic endTime;
   final dynamic totalPayment;
   final dynamic idBooking;
+  // final dynamic fieldId;
+  final Field? field;
 
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
@@ -154,7 +157,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             Padding(
                               padding: const EdgeInsets.only(right: 16.0),
                               child: Text(
-                                "${_venue?.price}",
+                                "${widget.field?.price}",
                                 style: fontTextStyle.copyWith(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -306,7 +309,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   int bookingId = 0;
 
   postBooking(){
-    BookingViewmodel().booking(categoryId: widget.categoryId, bookingDate: widget.bookingDate, endTime: widget.endTime, startTime: widget.startTime, taxPercentage: "11", totalPayment: widget.totalPayment, venueId: widget.venueId).then((value) {
+    // debugPrint(widget.fieldId.toString());
+    BookingViewmodel().booking(fieldId: widget.field?.id,categoryId: widget.categoryId, bookingDate: widget.bookingDate, endTime: widget.endTime, startTime: widget.startTime, taxPercentage: "11", totalPayment: widget.totalPayment, venueId: widget.venueId).then((value) {
       if (value.code == 200){
         setState(() {
           code = value.code;

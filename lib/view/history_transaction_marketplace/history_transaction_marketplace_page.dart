@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter_lapon/config/app_color.dart';
 import 'package:flutter_lapon/model/transaction_marketplace/transaction_marketplace.dart';
+import 'package:flutter_lapon/view/history_transaction_marketplace/transaction_marketplace_detail_page.dart';
 import 'package:flutter_lapon/viewmodel/transaction_viewmodel.dart';
 
 import '../../config/pref.dart';
@@ -18,9 +19,6 @@ class HistoryTransactionMarketplacePage extends StatefulWidget {
 class _HistoryTransactionMarketplacePageState
     extends State<HistoryTransactionMarketplacePage> {
   List<TransactionMarketplace> _transactions = [];
-  String _selectedStatus = "success";
-
-  final List<String> _statuses = ["success", "pending", "failed"];
 
   @override
   void initState() {
@@ -97,69 +95,74 @@ class _HistoryTransactionMarketplacePageState
   }
 
   Widget _buildTransactionCard(TransactionMarketplace transaction) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                "https://laponid.com/storage/${transaction.product?.image}",
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
+    return GestureDetector(
+      onTap: (){
+        Navigator.push(context, MaterialPageRoute(builder: (context) => TransactionMarketplaceDetailPage(transaction: transaction),));
+      },
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 3,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  "https://laponid.com/storage/${transaction.product?.image}",
                   width: 50,
                   height: 50,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.image, color: Colors.grey),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    width: 50,
+                    height: 50,
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.image, color: Colors.grey),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    transaction.product?.nameProduct ?? "Unknown Product",
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      transaction.product?.nameProduct ?? "Unknown Product",
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Transaction ID: ${transaction.transactionId ?? "-"}",
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Total: Rp ${transaction.total ?? "0"}",
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      "Transaction ID: ${transaction.transactionId ?? "-"}",
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Total: Rp ${transaction.total ?? "0"}",
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            Text(
-              transaction.status.toUpperCase(),
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: transaction.status == "success"
-                    ? Colors.green
-                    : transaction.status == "failed"
-                    ? Colors.red
-                    : Colors.orange,
+              Text(
+                transaction.status.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: transaction.status == "success"
+                      ? Colors.green
+                      : transaction.status == "failed"
+                      ? Colors.red
+                      : Colors.orange,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

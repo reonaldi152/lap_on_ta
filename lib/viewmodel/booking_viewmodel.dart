@@ -7,13 +7,14 @@ import '../config/network.dart';
 import '../config/pref.dart';
 
 class BookingViewmodel {
-  Future<Resp> booking({venueId,categoryId, bookingDate, startTime, endTime, taxPercentage, totalPayment}) async {
+  Future<Resp> booking({fieldId,venueId,categoryId, bookingDate, startTime, endTime, taxPercentage, totalPayment}) async {
     String? token = await Session().getUserToken();
 
     var header = <String, dynamic>{};
     header[HttpHeaders.authorizationHeader] = 'Bearer $token';
 
     Map<String, dynamic> formData = {
+      "field_id": fieldId,
       "venue_id": venueId,
       "category_id": categoryId,
       "booking_date": bookingDate,

@@ -37,7 +37,7 @@ class CheckoutViewmodel {
   }
 
 
-  Future<Resp> checkoutMarketplace({required productId}) async {
+  Future<Resp> checkoutMarketplace({required productId, required variationId}) async {
     String? token = await Session().getUserToken();
 
     var header = <String, dynamic>{};
@@ -45,6 +45,7 @@ class CheckoutViewmodel {
 
     Map<String, dynamic> formData = {
       "product_id": productId,
+      "variation_id": variationId,
     };
 
     var resp = await Network.postApiWithHeadersContentType(

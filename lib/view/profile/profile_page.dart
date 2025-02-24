@@ -188,33 +188,33 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   child: Column(
                     children: [
-                      InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const RequestCodePasswordPage()));
-                        },
-                        child: Row(
-                          children: [
-                            // Image.asset("assets/ic_privacy_policy.png", width: 16),
-                            SizedBox(width: 8),
-                            Text(
-                              "Reset Password",
-                              style: fontTextStyle.copyWith(
-                                  color: AppColor.black,
-                                  fontWeight: FontWeight.w600),
-                            )
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(vertical: 16),
-                        height: 1,
-                        width: double.infinity,
-                        color: const Color(0xFFE8EDF1),
-                      ),
+                      // InkWell(
+                      //   onTap: () {
+                      //     Navigator.push(
+                      //         context,
+                      //         MaterialPageRoute(
+                      //             builder: (context) =>
+                      //                 const RequestCodePasswordPage()));
+                      //   },
+                      //   child: Row(
+                      //     children: [
+                      //       // Image.asset("assets/ic_privacy_policy.png", width: 16),
+                      //       SizedBox(width: 8),
+                      //       Text(
+                      //         "Reset Password",
+                      //         style: fontTextStyle.copyWith(
+                      //             color: AppColor.black,
+                      //             fontWeight: FontWeight.w600),
+                      //       )
+                      //     ],
+                      //   ),
+                      // ),
+                      // Container(
+                      //   margin: const EdgeInsets.symmetric(vertical: 16),
+                      //   height: 1,
+                      //   width: double.infinity,
+                      //   color: const Color(0xFFE8EDF1),
+                      // ),
                       InkWell(
                         onTap: () {
                           logoutConfirm();

@@ -6,7 +6,7 @@ part 'user.g.dart';
 
 @JsonSerializable()
 class Users {
-  Users({this.id, this.name, this.email, this.phone, this.roles, this.createdAt, this.updatedAt});
+  Users({this.id, this.name, this.email, this.phone, this.roles, this.createdAt, this.updatedAt, this.address});
 
   factory Users.fromJson(Map<String, dynamic> json) => _$UsersFromJson(json);
 
@@ -16,6 +16,7 @@ class Users {
   final dynamic name;
   final dynamic email;
   final dynamic phone;
+  final dynamic address;
   final dynamic roles;
   @JsonKey(name: 'created_at')
   final dynamic createdAt;

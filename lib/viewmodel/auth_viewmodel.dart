@@ -82,7 +82,7 @@ class AuthViewmodel {
     return data;
   }
 
-  Future<Resp> editProfile({name,phone}) async {
+  Future<Resp> editProfile({name,phone, address}) async {
     String? token = await Session().getUserToken();
 
     var header = <String, dynamic>{};
@@ -91,6 +91,7 @@ class AuthViewmodel {
     Map<String, dynamic> formData = {
       "name": name,
       "phone": phone,
+      "address": address,
     };
 
     var resp = await Network.postApiWithHeaders(Endpoint.userDetailUrl, formData, header);

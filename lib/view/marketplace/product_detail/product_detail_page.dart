@@ -17,6 +17,8 @@ class ProductDetailPage extends StatefulWidget {
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
+  dynamic _selectedVariation;
+
   @override
   void initState() {
     getProductDetail();
@@ -135,58 +137,86 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 "${_product?.description}",
                 style: fontTextStyle.copyWith(fontSize: 16.0, color: Colors.grey[600]),
               ),
-              // SizedBox(height: 16.0),
-              // Text(
-              //   'Ukuran yang tersedia',
-              //   style: TextStyle(
-              //     fontWeight: FontWeight.bold,
-              //     fontSize: 18.0,
-              //     color: Colors.grey[700],
-              //   ),
-              // ),
-              // SizedBox(height: 8.0),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     _buildSizeOption('4'),
-              //     _buildSizeOption('5'),
-              //     _buildSizeOption('6'),
-              //     _buildSizeOption('7', isSelected: true),
-              //   ],
-              // ),
-              // SizedBox(height: 24.0),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     Expanded(
-              //       child: ElevatedButton.icon(
-              //         style: ElevatedButton.styleFrom(
-              //           padding: EdgeInsets.symmetric(vertical: 16.0),
-              //           shape: RoundedRectangleBorder(
-              //             borderRadius: BorderRadius.circular(16.0),
-              //           ),
-              //         ),
-              //         onPressed: () {},
-              //         icon: Icon(Icons.shopping_bag_outlined),
-              //         label: Text('Beli'),
-              //       ),
-              //     ),
-              //     SizedBox(width: 16.0),
-              //     Expanded(
-              //       child: ElevatedButton.icon(
-              //         style: ElevatedButton.styleFrom(
-              //           padding: EdgeInsets.symmetric(vertical: 16.0),
-              //           shape: RoundedRectangleBorder(
-              //             borderRadius: BorderRadius.circular(16.0),
-              //           ),
-              //         ),
-              //         onPressed: () {},
-              //         icon: Icon(Icons.shopping_bag_outlined),
-              //         label: Text('Sewa'),
-              //       ),
-              //     ),
-              //   ],
-              // ),
+              SizedBox(height: 16.0),
+              Text(
+                'Variasi Produk',
+                style: fontTextStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.0,
+                  color: Colors.grey[700],
+                ),
+              ),
+              SizedBox(height: 8.0),
+// Display variations as selectable cards
+              _product?.variations != null && _product!.variations!.isNotEmpty
+                  ? Wrap(
+                spacing: 8.0,
+                runSpacing: 8.0,
+                children: _product!.variations!.map((variation) {
+                  bool isSelected = _selectedVariation == variation;
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedVariation = variation;
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isSelected ? AppColor.colorPrimaryGreen : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected ? AppColor.colorPrimaryGreen : Colors.grey[300]!,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          )
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Material: ${variation['material']}",
+                            style: fontTextStyle.copyWith(
+                              color: isSelected ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          Text(
+                            "Size: ${variation['size']}",
+                            style: fontTextStyle.copyWith(
+                              color: isSelected ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          Text(
+                            "Stock: ${variation['stock']}",
+                            style: fontTextStyle.copyWith(
+                              color: isSelected ? Colors.white : Colors.black,
+                            ),
+                          ),
+                          Text(
+                            "Rp ${variation['price']}",
+                            style: fontTextStyle.copyWith(
+                              color: isSelected ? Colors.white : Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              )
+                  : Text(
+                'Variasi tidak tersedia',
+                style: fontTextStyle.copyWith(
+                  fontSize: 16.0,
+                  color: Colors.grey[600],
+                ),
+              ),
             ],
           ),
         ),
@@ -215,10 +245,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "${_product?.price}",
+                _selectedVariation != null
+                    ? "Rp ${_selectedVariation!['price']}"
+                    : "Rp ${_product?.price}",
                 style: fontTextStyle.copyWith(
                     color: const Color(0xFF121212),
-                    fontWeight: FontWeight.w700, fontSize: 18),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 18),
               ),
               InkWell(
                 onTap: (){
@@ -366,7 +399,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   postCheckoutMarketplace(){
     debugPrint("product id nya ${widget.productId}");
-    CheckoutViewmodel().checkoutMarketplace(productId: widget.productId).then((value) {
+    CheckoutViewmodel().checkoutMarketplace(productId: widget.productId, variationId: _selectedVariation['id']).then((value) {
       if (value.code == 200){
         // setState(() {
         //   isLoading = false;

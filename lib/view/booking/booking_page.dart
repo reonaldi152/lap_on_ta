@@ -126,7 +126,7 @@ class _BookingPageState extends State<BookingPage> {
                     bool isSelected = selectedSchedules.contains(data);
 
                     return GestureDetector(
-                      onTap: isDisabled
+                      onTap: isDisabled || data.is_booked
                           ? null
                           : () {
                         setState(() {
@@ -144,7 +144,7 @@ class _BookingPageState extends State<BookingPage> {
                         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 25),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
-                          color: isDisabled
+                          color: isDisabled || data.is_booked
                               ? Colors.grey[300]
                               : isSelected
                               ? AppColor.colorPrimaryGreen
@@ -193,7 +193,7 @@ class _BookingPageState extends State<BookingPage> {
                                 ),
                                 const SizedBox(width: 4),
                                 Icon(
-                                  isDisabled
+                                  isDisabled || data.is_booked
                                       ? Icons.cancel
                                       : isSelected
                                       ? Icons.check_circle

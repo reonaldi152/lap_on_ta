@@ -7,7 +7,7 @@ import '../config/network.dart';
 import '../config/pref.dart';
 
 class BookingViewmodel {
-  Future<Resp> booking({fieldId,venueId,categoryId, bookingDate, startTime, endTime, taxPercentage, totalPayment}) async {
+  Future<Resp> booking({fieldId,venueId,categoryId, bookingDate, timeSlots, taxPercentage, totalPayment}) async {
     String? token = await Session().getUserToken();
 
     var header = <String, dynamic>{};
@@ -18,8 +18,7 @@ class BookingViewmodel {
       "venue_id": venueId,
       "category_id": categoryId,
       "booking_date": bookingDate,
-      "start_time": startTime,
-      "end_time": endTime,
+      "time_slots": timeSlots,
       "tax_percentage": taxPercentage,
       "total_payment": totalPayment,
     };

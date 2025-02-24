@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_lapon/model/venue/field.dart';
 import 'package:flutter_lapon/view/payment/payment_webview_page.dart';
@@ -13,15 +11,21 @@ import '../../model/venue/venue.dart';
 import '../../viewmodel/venue_viewmodel.dart';
 
 class CheckoutPage extends StatefulWidget {
-  const CheckoutPage({super.key, this.venueId, this.categoryId, this.bookingDate, this.startTime, this.endTime, this.totalPayment, this.idBooking, this.field});
+  const CheckoutPage({
+    super.key,
+    this.venueId,
+    this.categoryId,
+    this.bookingDate,
+    this.timeSlots,
+    this.totalPayment,
+    this.field,
+  });
+
   final dynamic venueId;
   final dynamic categoryId;
   final dynamic bookingDate;
-  final dynamic startTime;
-  final dynamic endTime;
+  final List<Map<String, dynamic>>? timeSlots;
   final dynamic totalPayment;
-  final dynamic idBooking;
-  // final dynamic fieldId;
   final Field? field;
 
   @override
@@ -29,15 +33,17 @@ class CheckoutPage extends StatefulWidget {
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
-  @override
-  void initState() {
-    postBooking();
-    getDetailVenue();
-    super.initState();
-  }
-
   dynamic code;
   bool isLoading = false;
+  Venue? _venue;
+  int bookingId = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    postBooking();
+    getDetailVenue();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +66,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
         ),
       ),
-      body: code != 200 ? const Center(child: CircularProgressIndicator(),) : Container(
+      body: Container(
         height: MediaQuery.of(context).size.height,
         margin: const EdgeInsets.only(top: 12),
         decoration: const BoxDecoration(
@@ -106,9 +112,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 Text(
                   "Jadwal Booking",
                   style: fontTextStyle.copyWith(
-                      color: AppColor.colorPrimaryGreen,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16,),
+                    color: AppColor.colorPrimaryGreen,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -121,56 +127,59 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           fontWeight: FontWeight.w700,
                           fontSize: 14),
                     ),
-                    IconButton(onPressed: (){}, icon: const Icon(Icons.delete, color: AppColor.colorPrimaryGreen,),),
                   ],
                 ),
-                Text(
-                  dateBooking,
-                  style: fontTextStyle.copyWith(
-                    color: const Color(0xFF6F737A),
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          color: AppColor.colorPrimaryGreen.withOpacity(0.5), // Warna background baris hijau muda
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 16.0),
-                              child: Text(
-                                "$startTime - $endTime",
-                                style: fontTextStyle.copyWith(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 16.0),
-                              child: Text(
-                                "${widget.field?.price}",
-                                style: fontTextStyle.copyWith(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: const Color(0xFF4B6975), // Warna harga sesuai gambar
-                                ),
-                              ),
-                            ),
-                          ],
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(
+                    dateBooking.length, // Loop through the list of bookings
+                        (index) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Text(
+                        dateBooking[index],
+                        style: fontTextStyle.copyWith(
+                          color: const Color(0xFF6F737A),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
+                const SizedBox(height: 8),
+                Column(children: List.generate(startTime.length, (index) => Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColor.colorPrimaryGreen.withOpacity(0.5), // Warna background baris hijau muda
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16.0),
+                        child: Text(
+                          "${startTime[index]} - ${endTime[index]}",
+                          style: fontTextStyle.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 16.0),
+                        child: Text(
+                          "${widget.field?.price}",
+                          style: fontTextStyle.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF4B6975), // Warna harga sesuai gambar
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),),),
                 const SizedBox(height: 26),
                 Text(
                   'Checkout Review',
@@ -181,14 +190,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                _buildRow('Biaya Sewa', total),
+                Column(children: List.generate(total.length, (index) => _buildRow('Biaya Sewa', total[index]),),),
+
                 const SizedBox(height: 8),
                 _buildRow('Admin', '', isLink: true),
                 const SizedBox(height: 8),
                 _buildRow('PPN (11%)', ''),
                 Divider(thickness: 1, color: Colors.grey[300]),
                 const SizedBox(height: 8),
-                _buildRow('Total', total, isBold: true),
+                Column(children: List.generate(total.length, (index) => _buildRow('Total', total[index]),),),
                 Divider(thickness: 1, color: Colors.grey[300]),
                 const SizedBox(height: 8),
 
@@ -206,17 +216,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
           decoration: BoxDecoration(
-              color: AppColor.white,
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xff94A8BE).withOpacity(0.3),
-                  spreadRadius: 0.4,
-                  blurRadius: 6,
-                  offset: const Offset(
-                      0.5, 0), // changes position of shadow
-                )
-              ],
-              borderRadius: BorderRadius.circular(10)
+            color: AppColor.white,
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xff94A8BE).withOpacity(0.3),
+                spreadRadius: 0.4,
+                blurRadius: 6,
+                offset: const Offset(0.5, 0), // Changes position of shadow
+              )
+            ],
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -224,35 +233,50 @@ class _CheckoutPageState extends State<CheckoutPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Display total sessions dynamically
                   Text(
-                    "Total : 1 Sesi terpilih",
+                    "Total : ${bookingIds.length} Sesi terpilih",
                     style: fontTextStyle.copyWith(
                       color: const Color(0xFF121212),
                       fontSize: 12,
                     ),
                   ),
+                  // Display combined total payment
                   Text(
-                    total,
+                    "Rp ${total.fold<int>(0, (prev, amount) => prev + int.parse(amount))}",
                     style: fontTextStyle.copyWith(
-                        color: const Color(0xFF121212),
-                        fontWeight: FontWeight.w700),
+                      color: const Color(0xFF121212),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ],
               ),
               InkWell(
-                onTap: (){
-                  setState(() {
-                    isLoading = true;
-                  });
-                  postCheckout(bookingId: bookingId);
+                onTap: () {
+                  if (bookingIds.isNotEmpty) {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    postCheckout();
+                  } else {
+                    showToast(context: context, msg: "Pilih setidaknya satu sesi sebelum checkout!");
+                  }
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 16),
                   height: 40,
                   decoration: BoxDecoration(
-                      color: AppColor.colorPrimaryGreen,
-                      borderRadius: BorderRadius.circular(12)),
-                  child: isLoading ? const Center(child: CircularProgressIndicator(color: AppColor.white, strokeWidth: 2,)) : Text(
+                    color: AppColor.colorPrimaryGreen,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: isLoading
+                      ? const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColor.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                      : Text(
                     "Checkout Sekarang",
                     style: fontTextStyle.copyWith(
                       color: AppColor.white,
@@ -305,30 +329,76 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  String dateBooking = "", total = "", startTime = "", endTime = "";
-  int bookingId = 0;
+  List<int> bookingIds = [];
+  List<dynamic> dateBooking = [], total = [], startTime = [], endTime = [];
 
-  postBooking(){
-    // debugPrint(widget.fieldId.toString());
-    BookingViewmodel().booking(fieldId: widget.field?.id,categoryId: widget.categoryId, bookingDate: widget.bookingDate, endTime: widget.endTime, startTime: widget.startTime, taxPercentage: "11", totalPayment: widget.totalPayment, venueId: widget.venueId).then((value) {
-      if (value.code == 200){
+  void postBooking() async {
+    BookingViewmodel().booking(
+      venueId: widget.venueId,
+      fieldId: widget.field?.id,
+      bookingDate: widget.bookingDate is List ? widget.bookingDate : [widget.bookingDate],
+      taxPercentage: "11",
+      timeSlots: widget.timeSlots,
+    ).then((value) {
+      if (value.code == 200) {
+        // Clear existing lists before adding new bookings
+        bookingIds.clear();
+        dateBooking.clear();
+        total.clear();
+        startTime.clear();
+        endTime.clear();
+
+        // Extract data from response and update lists
+        for (var booking in value.data) {
+          bookingIds.add(booking['id']);
+          dateBooking.add(booking['booking_date']);
+          total.add(booking['total_payment'].toString());
+          startTime.add(booking['start_time']);
+          endTime.add(booking['end_time']);
+        }
+
+        // Update state after extracting all data
         setState(() {
-          code = value.code;
-          bookingId = value.data['id'];
-          dateBooking = value.data['booking_date'];
-          total = value.data['total_payment'].toString();
-          startTime = value.data['start_time'];
-          endTime = value.data['end_time'];
+          code = 200;
         });
+
+        // Debug log to verify data
+        print("Booking IDs: $bookingIds");
+        print("Dates: $dateBooking");
+        print("Total Payments: $total");
+        print("Start Times: $startTime");
+        print("End Times: $endTime");
       } else {
-        if (!mounted) return;
         showToast(context: context, msg: value.message);
       }
-    },);
+    });
   }
 
-  Venue? _venue;
-  getDetailVenue() {
+
+
+
+  void postCheckout() {
+    setState(() => isLoading = true);
+    // debugPrint("ids $bookingIds");
+    CheckoutViewmodel().checkout(bookingId: bookingIds).then((value) {
+      if (value.code == 200) {
+        debugPrint("payment_url nya : ${value.data['payment_url']}");
+        // Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentWebviewPage(url: value.data['payment_url']),));
+        _launchUrl(url: value.data['payment_url']);
+      } else {
+        showToast(context: context, msg: value.message);
+      }
+      setState(() => isLoading = false);
+    });
+  }
+
+  Future<void> _launchUrl({String? url}) async {
+    if (!await launchUrl(Uri.parse(url ?? ""))) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
+  void getDetailVenue() {
     VenueViewmodel().detailVenue(venueid: widget.venueId).then((value) {
       if (value.code == 200) {
         setState(() {
@@ -337,32 +407,4 @@ class _CheckoutPageState extends State<CheckoutPage> {
       }
     });
   }
-  
-  postCheckout({required bookingId}){
-    debugPrint("booking id nya $bookingId");
-    CheckoutViewmodel().checkout(bookingId: bookingId).then((value) {
-      if (value.code == 200 && mounted){
-        setState(() {
-          isLoading = false;
-        });
-        debugPrint("payment_url nya : ${value.data['payment_url']}");
-        // Navigator.push(context, MaterialPageRoute(builder: (context) => PaymentWebviewPage(url: value.data['payment_url']),));
-        _launchUrl(url: value.data['payment_url']);
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-        showToast(context: context, msg: value.message);
-      }
-    },);
-  }
-
-  Future<void> _launchUrl({String? url}) async {
-    if (!await launchUrl(Uri.parse(url ?? ""))) {
-      throw Exception('Could not launch $url');
-    }
-  }
 }
-
-
-

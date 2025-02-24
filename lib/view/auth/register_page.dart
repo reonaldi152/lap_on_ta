@@ -19,7 +19,7 @@ class _RegisterPageState extends State<RegisterPage> {
   String? passwordMatch, valueGender;
   bool isLoading = false;
   final Session _session = Session();
-  final TextEditingController namaController = TextEditingController(), emailController = TextEditingController(), passwordController = TextEditingController(), confirmPasswordController = TextEditingController(), noTelpController = TextEditingController();
+  final TextEditingController namaController = TextEditingController(), emailController = TextEditingController(), passwordController = TextEditingController(), confirmPasswordController = TextEditingController(), noTelpController = TextEditingController(), addressController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -209,6 +209,41 @@ class _RegisterPageState extends State<RegisterPage> {
                     }),
                 const SizedBox(height: 16),
                 TextFormField(
+                    maxLines: 3,
+                    controller: addressController,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+
+                      fillColor: AppColor.white,
+                      filled: true,
+                      labelStyle: fontTextStyle.copyWith(
+                          color: const Color(0xff878E97)),
+                      hintStyle: fontTextStyle.copyWith(
+                          color: const Color(0xff878E97)),
+                      hintText: "Alamat Lengkap",
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFFE8EDF1)),
+                      ),
+                      enabledBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Color(0xFFE8EDF1)),
+                          borderRadius: BorderRadius.all(Radius.circular(16))),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFE8EDF1)),
+                        borderRadius: BorderRadius.all(Radius.circular(16)),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Alamat harus di isi';
+                      }
+                      return null;
+                    }),
+                const SizedBox(height: 16),
+                TextFormField(
                   controller: passwordController,
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   obscureText: _passwordVisible,
@@ -380,7 +415,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   register() {
     AuthViewmodel()
-        .register(email: emailController.text, name: namaController.text, confirmPassword: confirmPasswordController.text, password: passwordController.text, phone: noTelpController.text)
+        .register(email: emailController.text, name: namaController.text, confirmPassword: confirmPasswordController.text, password: passwordController.text, phone: noTelpController.text, address: addressController.text)
         .then(
           (response) async {
         if (response.code == 200){

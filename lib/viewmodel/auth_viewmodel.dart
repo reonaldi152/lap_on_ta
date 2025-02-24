@@ -19,12 +19,13 @@ class AuthViewmodel {
     return data;
   }
 
-  Future<Resp> register({name, email, phone, password, confirmPassword}) async {
+  Future<Resp> register({name, email, phone, password, confirmPassword, address}) async {
 
     Map<String, dynamic> formData = {
       "name": name,
       "email": email,
       "phone": phone,
+      "address": address,
       "password": password,
       "password_confirmation": confirmPassword,
     };

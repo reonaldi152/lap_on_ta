@@ -20,7 +20,7 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> {
   DateTime _dateTime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day); // Inisialisasi dengan tanggal saat ini tanpa waktu
   ScheduleModel? _scheduleModel;
-  DataSchedule? selectedSchedule;
+  List<DataSchedule> selectedSchedules = [];
   double totalPrice = 0.0;
   bool isSelected = false;
 
@@ -79,8 +79,7 @@ class _BookingPageState extends State<BookingPage> {
               const SizedBox(height: 26),
               ExpansionTile(
                 title: Container(
-                  padding:
-                  const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
                   child: Row(
                     children: [
                       ClipRRect(
@@ -124,20 +123,20 @@ class _BookingPageState extends State<BookingPage> {
                       (index) {
                     DataSchedule data = _scheduleModel!.schedules![index];
                     bool isDisabled = data.is_past ?? false; // Cek apakah jadwal sudah lewat
-                    bool isSelected = selectedSchedule == data;
+                    bool isSelected = selectedSchedules.contains(data);
 
                     return GestureDetector(
                       onTap: isDisabled
-                          ? null // Jika jadwal sudah lewat, tidak ada interaksi
+                          ? null
                           : () {
                         setState(() {
                           if (isSelected) {
-                            selectedSchedule = null;
-                            totalPrice = 0.0;
+                            selectedSchedules.remove(data);
                           } else {
-                            selectedSchedule = data;
-                            totalPrice = double.parse(widget.field?.price);
+                            selectedSchedules.add(data);
                           }
+                          totalPrice = selectedSchedules.length *
+                              double.parse(widget.field?.price ?? "0");
                         });
                       },
                       child: Container(
@@ -146,7 +145,7 @@ class _BookingPageState extends State<BookingPage> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
                           color: isDisabled
-                              ? Colors.grey[300] // Berikan warna abu-abu untuk jadwal yang dinonaktifkan
+                              ? Colors.grey[300]
                               : isSelected
                               ? AppColor.colorPrimaryGreen
                               : AppColor.white,
@@ -213,7 +212,6 @@ class _BookingPageState extends State<BookingPage> {
                     );
                   },
                 ),
-
               ),
               const SizedBox(height: 36),
             ],
@@ -246,7 +244,7 @@ class _BookingPageState extends State<BookingPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Total : ${selectedSchedule != null ? 1 : 0} Sesi terpilih",
+                    "Total : ${selectedSchedules.length} Sesi terpilih",
                     style: fontTextStyle.copyWith(
                       color: const Color(0xFF121212),
                       fontSize: 12,
@@ -262,35 +260,45 @@ class _BookingPageState extends State<BookingPage> {
               ),
               InkWell(
                 onTap: () {
-                  // debugPrint(widget.fieldId.toString());
-                  if (selectedSchedule != null && widget.field != null && widget.venueId != null) {
-                    String formattedStartTime = selectedSchedule!.start_time.substring(0, 5);
-                    String formattedEndTime = selectedSchedule!.end_time.substring(0, 5);
+                  // Periksa jika ada jadwal yang dipilih
+                  if (selectedSchedules.isNotEmpty && widget.field != null && widget.venueId != null) {
+                    // Ubah semua jadwal terpilih menjadi format time slot sesuai kebutuhan API
+                    List<Map<String, dynamic>> timeSlots = selectedSchedules.map((schedule) {
+                      return {
+                        "start_time": schedule.start_time.substring(0, 5),
+                        "end_time": schedule.end_time.substring(0, 5),
+                      };
+                    }).toList();
+
+                    // Pindah ke halaman Checkout dengan daftar waktu booking
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => CheckoutPage(
                           field: widget.field,
                           venueId: widget.venueId,
-                          bookingDate: "${_dateTime.year.toString().padLeft(4, '0')}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}",
-                          startTime: formattedStartTime,
-                          endTime: formattedEndTime,
+                          bookingDate:
+                          "${_dateTime.year.toString().padLeft(4, '0')}-${_dateTime.month.toString().padLeft(2, '0')}-${_dateTime.day.toString().padLeft(2, '0')}",
+                          timeSlots: timeSlots,
                           totalPayment: totalPrice,
                           categoryId: _scheduleModel?.venue?.categoryId,
                         ),
                       ),
                     );
                   } else {
-                    // Tampilkan alert atau pesan bahwa pengguna harus memilih jadwal terlebih dahulu
+                    // Tampilkan pesan error jika belum memilih jadwal
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Pilih setidaknya satu slot jadwal!")),
+                    );
                   }
-
                 },
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 11, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 16),
                   height: 40,
                   decoration: BoxDecoration(
-                      color: AppColor.colorPrimaryGreen,
-                      borderRadius: BorderRadius.circular(12)),
+                    color: AppColor.colorPrimaryGreen,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   child: Text(
                     "Checkout Sekarang",
                     style: fontTextStyle.copyWith(
@@ -300,6 +308,7 @@ class _BookingPageState extends State<BookingPage> {
                   ),
                 ),
               ),
+
             ],
           ),
         ),
